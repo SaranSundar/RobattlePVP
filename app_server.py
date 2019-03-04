@@ -1,21 +1,23 @@
+import json
 import socket
 import sys
 from threading import Thread
 
 clients = []
+MAX_CLIENTS = 2
 
 
 def create_server_socket():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     print('Socket created')
-    server.bind(("127.0.0.1", 12345))
     try:
+        server.bind(("127.0.0.1", 12345))
         print('Socket binded')
     except socket.error as error:
         print(error)
         sys.exit()
-    server.listen(2)
+    server.listen(4)
     print("Socket listening...")
     return server
 
@@ -28,21 +30,24 @@ def client_thread(rec_socket, send_socket, ip, port, max_buffer_size=88888):
             print("Player from " + ip + ":" + port + " has left")
             break
         data = data.decode("utf8").rstrip()
+        data = json.loads(data)
         print("Player sent", data)
         data = "Got Your message".encode("utf8")
         send_socket.sendall(data)
 
 
 def run_server(server):
-    while True:
+    while len(clients) < MAX_CLIENTS:
         rec_socket, rec_addr = server.accept()
         send_socket, send_addr = server.accept()
         ip, port = str(rec_addr[0]), str(rec_addr[1])
         print("Player from " + ip + ":" + port + " has joined")
         clients.append((rec_socket, send_socket))
         Thread(target=client_thread, args=(rec_socket, send_socket, ip, port)).start()
+    print("All Players Have Joined")
+    print("Get Ready to Robattle!!!")
 
-    server.close()
+    # server.close()
 
 
 def main():

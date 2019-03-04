@@ -1,7 +1,10 @@
 import datetime
+import json
 import socket
 import time
 from threading import Thread
+
+endgame = False
 
 
 def create_client_sockets():
@@ -24,23 +27,33 @@ def send_to_server_thread(send_socket):
 
 
 def get_from_server_thread(rec_socket):
-    while True:
+    global endgame
+    while not endgame:
         data = rec_socket.recv(4096)
+        print("Server has shut down")
+        print("Terminating Client")
+        if data == b'':
+            endgame = True
+            break
         data = data.decode("utf8")
         print("Received " + data)
 
 
 def client_input_thread(send_to_server):
+    global endgame
     print("Send commands as the client")
-    while True:
-        data = input(">")
+    while not endgame:
+        inp = input(">")
+        data = {'hi': 6, 'x': 'er'}
+        data = json.dumps(data)
         data = data.encode("utf8")
         send_to_server.sendall(data)
 
 
 def main():
     send_socket, rec_socket = create_client_sockets()
-    Thread(target=send_to_server_thread, args=(send_socket,)).start()
+    Thread(target=client_input_thread, args=(send_socket,)).start()
+    # Thread(target=send_to_server_thread, args=(send_socket,)).start()
     Thread(target=get_from_server_thread, args=(rec_socket,)).start()
 
 
