@@ -25,14 +25,31 @@ class Player(pygame.sprite.Sprite):
 
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
+        # IDLE GETTING READY TO FIGHT ANIMATION
         width = 41
         height = 55
         offset_x = 7
         offset_y = 10
+        self.frame_count = 6
+
+        # WALK ANIMATION
+        # width = 35
+        # height = 53
+        # offset_x = 4
+        # offset_y = 80
+        # self.frame_count = 8
+
+        # RUN ANIMATION
+        # width = 46
+        # height = 53
+        # offset_x = 7
+        # offset_y = 144
+        # self.frame_count = 6
+
         spritesheet = SpriteSheet("metabee_spritesheet.png")
         scale = 1.75
-        self.frame_count = 6
         self.frame = 0
+        self.animation_speed = self.frame_count*14  # ms
         # Col and Row Dont Matter Here, X & Y Override It.
         self.images = spritesheet.get_images(offset_x, offset_y, width, height, scale, self.frame_count)
         self.image = self.images[0]  # spritesheet.get_image(-1, -1, width, height, scale, offset_x, offset_y)
@@ -40,8 +57,8 @@ class Player(pygame.sprite.Sprite):
         # Set a reference to the image rect.
         self.rect = self.image.get_rect()
 
-        self.rect.x = 50
-        self.rect.y = 50
+        self.rect.x = 200
+        self.rect.y = 200
 
         # Set speed vector of player
         self.delta_x = 2
@@ -79,7 +96,7 @@ class Player(pygame.sprite.Sprite):
     def animate_sprite(self):
         if clock() > self.timeOfNextFrame:  # We only animate our character every 60ms.
             self.frame = (self.frame + 1) % self.frame_count  # There are 6 frames of animation in each direction
-            self.timeOfNextFrame += 80  # so the modulus allows it to loop
+            self.timeOfNextFrame += self.animation_speed  # so the modulus allows it to loop
             self.image = self.images[self.frame]
 
     def reset_clock(self):
