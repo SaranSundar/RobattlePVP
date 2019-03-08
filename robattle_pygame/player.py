@@ -26,18 +26,18 @@ class Player(pygame.sprite.Sprite):
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
         # IDLE GETTING READY TO FIGHT ANIMATION
-        width = 41
-        height = 55
-        offset_x = 7
-        offset_y = 10
-        self.frame_count = 6
+        # width = 41
+        # height = 55
+        # offset_x = 7
+        # offset_y = 10
+        # self.frame_count = 6
 
         # WALK ANIMATION
-        # width = 35
-        # height = 53
-        # offset_x = 4
-        # offset_y = 80
-        # self.frame_count = 8
+        width = 35
+        height = 53
+        offset_x = 5
+        offset_y = 80
+        self.frame_count = 8
 
         # RUN ANIMATION
         # width = 46
@@ -49,10 +49,12 @@ class Player(pygame.sprite.Sprite):
         spritesheet = SpriteSheet("metabee_spritesheet.png")
         scale = 1.75
         self.frame = 0
-        self.animation_speed = self.frame_count*14  # ms
+        self.animation_speed = self.frame_count * 10  # ms
         # Col and Row Dont Matter Here, X & Y Override It.
         self.images = spritesheet.get_images(offset_x, offset_y, width, height, scale, self.frame_count)
-        self.image = self.images[0]  # spritesheet.get_image(-1, -1, width, height, scale, offset_x, offset_y)
+
+        # Start facing Right
+        self.image = self.images[0][0]
 
         # Set a reference to the image rect.
         self.rect = self.image.get_rect()
@@ -93,26 +95,29 @@ class Player(pygame.sprite.Sprite):
         if key == pygame.K_DOWN:
             self.down = False
 
-    def animate_sprite(self):
+    def animate_sprite(self, direction):
         if clock() > self.timeOfNextFrame:  # We only animate our character every 60ms.
             self.frame = (self.frame + 1) % self.frame_count  # There are 6 frames of animation in each direction
             self.timeOfNextFrame += self.animation_speed  # so the modulus allows it to loop
-            self.image = self.images[self.frame]
+            if direction == "r":
+                self.image = self.images[self.frame][0]
+            elif direction == "l":
+                self.image = self.images[self.frame][1]
 
     def reset_clock(self):
         self.timeOfNextFrame = clock()
         self.frame = 0
-        self.image = self.images[self.frame]
+        self.image = self.images[self.frame][0]
 
     def update(self):
         """ Move the player. """
         # Move left/right
         if self.right:
             self.rect.x += self.delta_x
-            self.animate_sprite()
+            self.animate_sprite("r")
         elif self.left:
             self.rect.x -= self.delta_x
-            self.animate_sprite()
+            self.animate_sprite("l")
         else:
             self.reset_clock()
 

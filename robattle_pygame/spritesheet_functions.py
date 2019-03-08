@@ -41,6 +41,7 @@ class SpriteSheet(object):
     def get_images(self, x, y, width, height, scale, frames):
         images = []
         for i in range(frames):
-            image = self.get_image(-1, -1, width, height, scale, x + (width * i), y)
-            images.append(image)
+            r_image = self.get_image(-1, -1, width, height, scale, x + (width * i), y)
+            l_image = pygame.transform.flip(r_image, True, False)
+            images.append((r_image, l_image))
         return images
