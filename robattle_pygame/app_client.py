@@ -44,9 +44,11 @@ def send_to_server(send_socket):
 def main():
     send_socket, rec_socket = create_client_sockets()
     Thread(target=send_to_server, args=(send_socket,)).start()
-    # Thread(target=send_to_server_thread, args=(send_socket,)).start()
     Thread(target=get_from_server_thread, args=(rec_socket,)).start()
-    launch_game(server_queue, str(send_socket.getsockname()[0]) + ":" + str(send_socket.getsockname()[1]))
+
+    ip_host = str(send_socket.getsockname()[0]) + ":" + str(send_socket.getsockname()[1])
+
+    launch_game(server_queue, ip_host)
 
 
 main()

@@ -61,6 +61,7 @@ def run_server(server):
     print("All Players Have Joined")
     print("Get Ready to Robattle!!!")
     # Add reset message to queue python now that game begins
+    messages.put("reset")
 
     # server.close()
 
