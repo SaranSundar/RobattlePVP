@@ -18,7 +18,7 @@ def clock():
 
 class Player(pygame.sprite.Sprite):
     # -- Methods
-    def __init__(self):
+    def __init__(self, id):
         """ Constructor function """
 
         # Call the parent's constructor
@@ -77,8 +77,11 @@ class Player(pygame.sprite.Sprite):
         self.arena = None
         self.timeOfNextFrame = clock()
 
+        self.id = id
+
     def get_json_values(self):
         state = {
+            'id': self.id,
             'frame_count': self.frame_count,
             'frame': self.frame,
             'animation_speed': self.animation_speed,

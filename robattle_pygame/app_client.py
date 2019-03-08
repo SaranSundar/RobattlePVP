@@ -2,6 +2,8 @@ import queue
 import socket
 from threading import Thread
 
+import msgpack
+
 from robattle_pygame.main_game import launch_game
 
 endgame = False
@@ -27,8 +29,8 @@ def get_from_server_thread(rec_socket):
             print("Terminating Client")
             endgame = True
             break
-        data = data.decode("utf8")
-        print("Received " + data)
+        data = msgpack.unpackb(data)
+        print(data)
 
 
 def send_to_server(send_socket):
@@ -44,7 +46,7 @@ def main():
     Thread(target=send_to_server, args=(send_socket,)).start()
     # Thread(target=send_to_server_thread, args=(send_socket,)).start()
     Thread(target=get_from_server_thread, args=(rec_socket,)).start()
-    launch_game(server_queue)
+    launch_game(server_queue, str(send_socket.getsockname()[0]) + ":" + str(send_socket.getsockname()[1]))
 
 
 main()

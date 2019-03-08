@@ -11,7 +11,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 
-def launch_game(server_queue=queue.Queue()):
+def launch_game(server_queue=queue.Queue(), port_id=1):
     """ Main Program """
     pygame.init()
 
@@ -23,7 +23,7 @@ def launch_game(server_queue=queue.Queue()):
     arena = Arena("Arena1.txt")
 
     # Create the player
-    player = Player()
+    player = Player(port_id)
     player.arena = arena
 
     # Loop until the user clicks the close button.
