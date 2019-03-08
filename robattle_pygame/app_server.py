@@ -1,7 +1,8 @@
-import json
 import socket
 import sys
 from threading import Thread
+
+import msgpack
 
 clients = []
 MAX_CLIENTS = 2
@@ -21,7 +22,11 @@ def create_server_socket():
     print("Socket listening...")
     return server
 
-"""Make dictionary for each client, every time client sends message add to that queue, then in another method read values from queue and send to all clients"""
+
+"""Make dictionary for each client, every time client sends message add to that queue,
+ then in another method read values from queue and send to all clients"""
+
+
 def client_thread(rec_socket, send_socket, ip, port, max_buffer_size=88888):
     while True:
         data = rec_socket.recv(max_buffer_size)
@@ -29,9 +34,10 @@ def client_thread(rec_socket, send_socket, ip, port, max_buffer_size=88888):
             rec_socket.close()
             print("Player from " + ip + ":" + port + " has left")
             break
-        data = data.decode("utf8").rstrip()
-        data = json.loads(data)
-        print("Player sent", data)
+        # data = data.decode("utf8").rstrip()
+        # data = json.loads(data)
+        player = msgpack.unpackb(data)
+        print("Player sent", player)
         data = "Got Your message".encode("utf8")
         send_socket.sendall(data)
 

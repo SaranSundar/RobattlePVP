@@ -1,3 +1,4 @@
+import msgpack
 import pygame
 
 from robattle_pygame.spritesheet_functions import SpriteSheet
@@ -51,7 +52,8 @@ class Player(pygame.sprite.Sprite):
         self.frame = 0
         self.animation_speed = self.frame_count * 10  # ms
         # Col and Row Dont Matter Here, X & Y Override It.
-        self.images = spritesheet.get_images(offset_x, offset_y, width, height, scale, self.frame_count)
+        self.images = spritesheet.get_images(offset_x, offset_y, width, height, scale, self.frame_count,
+                                             use_topleft=True)
 
         # Start facing Right
         self.image = self.images[0][0]
@@ -76,8 +78,22 @@ class Player(pygame.sprite.Sprite):
         self.timeOfNextFrame = clock()
 
     def get_json_values(self):
-        message = {'x': self.rect.x, 'y': self.rect.y}
-        return message
+        state = {
+            'frame_count': self.frame_count,
+            'frame': self.frame,
+            'animation_speed': self.animation_speed,
+            'x': self.rect.x,
+            'y': self.rect.y,
+            'width': self.rect.width,
+            'height': self.rect.height,
+            'delta_x': self.delta_x,
+            'delta_y': self.delta_y,
+            'right': self.right,
+            'left': self.left,
+            'up': self.up,
+            'down': self.down,
+        }
+        return msgpack.packb(state)
 
     def keydown(self, key):
         if key == pygame.K_LEFT:

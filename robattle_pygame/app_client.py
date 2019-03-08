@@ -1,4 +1,3 @@
-import json
 import queue
 import socket
 from threading import Thread
@@ -37,8 +36,6 @@ def send_to_server(send_socket):
     print("Send commands as the client")
     while not endgame:
         data = server_queue.get()
-        data = json.dumps(data)
-        data = data.encode("utf8")
         send_socket.sendall(data)
 
 

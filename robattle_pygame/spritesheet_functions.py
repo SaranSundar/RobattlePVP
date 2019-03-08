@@ -24,7 +24,7 @@ class SpriteSheet(object):
         file_path = get_path_name("images", filename)
         self.sprite_sheet = pygame.image.load(file_path).convert()
 
-    def get_image(self, col, row, width, height, scale=1, x=-1, y=-1):
+    def get_image(self, col, row, width, height, scale=1, x=-1, y=-1, use_topleft=False):
         """ Grab a single image out of a larger spritesheet
             Pass in the x, y location of the sprite
             and the width and height of the sprite. """
@@ -40,6 +40,10 @@ class SpriteSheet(object):
 
         # Assuming black works as the transparent color
         image.set_colorkey((255, 255, 255))
+        if use_topleft:
+            # Use top left of image for transparent color
+            transparent_color = image.get_at((0, 0))
+            image.set_colorkey(transparent_color)
 
         if scale != 1:
             width = int(width * scale)
@@ -49,10 +53,10 @@ class SpriteSheet(object):
         # Return the image
         return image
 
-    def get_images(self, x, y, width, height, scale, frames):
+    def get_images(self, x, y, width, height, scale, frames, use_topleft):
         images = []
         for i in range(frames):
-            r_image = self.get_image(-1, -1, width, height, scale, x + (width * i), y)
+            r_image = self.get_image(-1, -1, width, height, scale, x + (width * i), y, use_topleft)
             l_image = pygame.transform.flip(r_image, True, False)
             images.append((r_image, l_image))
         return images
