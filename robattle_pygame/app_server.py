@@ -21,7 +21,7 @@ def create_server_socket():
     print("Socket listening...")
     return server
 
-
+"""Make dictionary for each client, every time client sends message add to that queue, then in another method read values from queue and send to all clients"""
 def client_thread(rec_socket, send_socket, ip, port, max_buffer_size=88888):
     while True:
         data = rec_socket.recv(max_buffer_size)

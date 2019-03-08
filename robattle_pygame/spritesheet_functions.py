@@ -1,17 +1,28 @@
 """
 This module is used to pull individual sprites from sprite sheets.
 """
+import os
+
 import pygame
+
+
+def get_path_name(folder, filename):
+    # Load the sprite sheet.
+    current_path = os.path.dirname(__file__)  # Where your .py file is located
+    resource_path = os.path.join(current_path, 'resources')  # The resource folder path
+    image_path = os.path.join(resource_path, folder)  # The image folder path
+    final_path = os.path.join(image_path, filename)
+    return final_path
 
 
 class SpriteSheet(object):
     """ Class used to grab images out of a sprite sheet. """
 
-    def __init__(self, file_name):
+    def __init__(self, filename):
         """ Constructor. Pass in the file name of the sprite sheet. """
 
-        # Load the sprite sheet.
-        self.sprite_sheet = pygame.image.load(file_name).convert()
+        file_path = get_path_name("images", filename)
+        self.sprite_sheet = pygame.image.load(file_path).convert()
 
     def get_image(self, col, row, width, height, scale=1, x=-1, y=-1):
         """ Grab a single image out of a larger spritesheet

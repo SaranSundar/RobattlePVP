@@ -75,6 +75,10 @@ class Player(pygame.sprite.Sprite):
         self.arena = None
         self.timeOfNextFrame = clock()
 
+    def get_json_values(self):
+        message = {'x': self.rect.x, 'y': self.rect.y}
+        return message
+
     def keydown(self, key):
         if key == pygame.K_LEFT:
             self.left = True

@@ -1,10 +1,13 @@
-import datetime
 import json
+import queue
 import socket
-import time
 from threading import Thread
 
+from robattle_pygame.main_game import launch_game
+
 endgame = False
+
+server_queue = queue.Queue()
 
 
 def create_client_sockets():
@@ -17,44 +20,34 @@ def create_client_sockets():
     return send_socket, rec_socket
 
 
-def send_to_server_thread(send_socket):
-    while True:
-        current_dt = datetime.datetime.now()
-        data = str(current_dt)
-        data = data.encode("utf8")
-        send_socket.sendall(data)
-        time.sleep(1)
-
-
 def get_from_server_thread(rec_socket):
     global endgame
     while not endgame:
         data = rec_socket.recv(4096)
-        print("Server has shut down")
-        print("Terminating Client")
         if data == b'':
+            print("Terminating Client")
             endgame = True
             break
         data = data.decode("utf8")
         print("Received " + data)
 
 
-def client_input_thread(send_to_server):
+def send_to_server(send_socket):
     global endgame
     print("Send commands as the client")
     while not endgame:
-        inp = input(">")
-        data = {'hi': 6, 'x': 'er'}
+        data = server_queue.get()
         data = json.dumps(data)
         data = data.encode("utf8")
-        send_to_server.sendall(data)
+        send_socket.sendall(data)
 
 
 def main():
     send_socket, rec_socket = create_client_sockets()
-    Thread(target=client_input_thread, args=(send_socket,)).start()
+    Thread(target=send_to_server, args=(send_socket,)).start()
     # Thread(target=send_to_server_thread, args=(send_socket,)).start()
     Thread(target=get_from_server_thread, args=(rec_socket,)).start()
+    launch_game(server_queue)
 
 
 main()

@@ -1,4 +1,5 @@
 # Screen dimensions
+import queue
 import sys
 
 import pygame
@@ -10,7 +11,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 
-def main():
+def launch_game(server_queue=queue.Queue()):
     """ Main Program """
     pygame.init()
 
@@ -34,8 +35,14 @@ def main():
     active_sprites = pygame.sprite.Group()
     active_sprites.add(player)
 
+    server_message = {}
+
     # -------- Main Program Loop -----------
     while not done:
+        new_message = player.get_json_values()
+        if server_message != new_message:
+            server_message = new_message
+            server_queue.put(server_message)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
@@ -64,4 +71,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    launch_game()

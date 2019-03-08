@@ -1,7 +1,7 @@
 import pygame
 
 from robattle_pygame.block import Block
-from robattle_pygame.spritesheet_functions import SpriteSheet
+from robattle_pygame.spritesheet_functions import SpriteSheet, get_path_name
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -23,7 +23,8 @@ def create_blocks(filename: str):
     spritesheet = SpriteSheet("tiles_spritesheet.png")
     scale_block_size = 55
     spritesheet_block_size = 72  # 72 x 72
-    with open(filename, 'r') as f:
+    file_path = get_path_name("maps", filename)
+    with open(file_path, 'r') as f:
         lines = f.readlines()
         row = 0
         for line in lines:
