@@ -1,5 +1,5 @@
-import msgpack
 import pygame
+import json
 
 from robattle_pygame.spritesheet_functions import SpriteSheet
 
@@ -18,7 +18,7 @@ def clock():
 
 class Player(pygame.sprite.Sprite):
     # -- Methods
-    def __init__(self, id):
+    def __init__(self, ip, port):
         """ Constructor function """
 
         # Call the parent's constructor
@@ -77,11 +77,13 @@ class Player(pygame.sprite.Sprite):
         self.arena = None
         self.timeOfNextFrame = clock()
 
-        self.id = id
+        self.ip = ip
+        self.port = port
 
     def get_json_values(self):
         state = {
-            'id': self.id,
+            'ip': self.ip,
+            'port': self.port,
             'frame_count': self.frame_count,
             'frame': self.frame,
             'animation_speed': self.animation_speed,
@@ -96,7 +98,24 @@ class Player(pygame.sprite.Sprite):
             'up': self.up,
             'down': self.down,
         }
-        return msgpack.packb(state)
+        return state
+
+    def set_json_values(self, state):
+        self.ip = state['ip']
+        self.port = state['port']
+        self.frame_count = state['frame_count']
+        self.frame = state['frame']
+        self.animation_speed = state['animation_speed']
+        self.rect.x = state['x']
+        self.rect.y = state['y']
+        self.rect.width = state['width']
+        self.rect.height = state['height']
+        self.delta_x = state['delta_x']
+        self.delta_y = state['delta_y']
+        self.right = state['right']
+        self.left = state['left']
+        self.up = state['up']
+        self.down = state['down']
 
     def keydown(self, key):
         if key == pygame.K_LEFT:

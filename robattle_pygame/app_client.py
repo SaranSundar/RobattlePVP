@@ -1,14 +1,14 @@
+import pickle
 import queue
 import socket
 from threading import Thread
-
-import msgpack
 
 from robattle_pygame.main_game import launch_game
 
 endgame = False
 
 server_queue = queue.Queue()
+player_queue = queue.Queue()
 
 
 def create_client_sockets():
@@ -23,21 +23,24 @@ def create_client_sockets():
 
 def get_from_server_thread(rec_socket):
     global endgame
+    global player_queue
     while not endgame:
         data = rec_socket.recv(4096)
         if data == b'':
             print("Terminating Client")
             endgame = True
             break
-        data = msgpack.unpackb(data)
+        data = pickle.loads(data)
         print(data)
+        player_queue.put(data)
 
 
 def send_to_server(send_socket):
     global endgame
-    print("Send commands as the client")
+    global server_queue
     while not endgame:
         data = server_queue.get()
+        data = pickle.dumps(data)
         send_socket.sendall(data)
 
 
@@ -46,9 +49,9 @@ def main():
     Thread(target=send_to_server, args=(send_socket,)).start()
     Thread(target=get_from_server_thread, args=(rec_socket,)).start()
 
-    ip_host = str(send_socket.getsockname()[0]) + ":" + str(send_socket.getsockname()[1])
+    ip, port = send_socket.getsockname()[0], send_socket.getsockname()[1]
 
-    launch_game(server_queue, ip_host)
+    launch_game(server_queue, ip, port, player_queue)
 
 
 main()

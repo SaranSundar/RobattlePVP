@@ -1,9 +1,8 @@
+import pickle
 import queue
 import socket
 import sys
 from threading import Thread
-
-import msgpack
 
 clients = []
 MAX_CLIENTS = 2
@@ -27,27 +26,28 @@ def create_server_socket():
 
 def send_to_all_clients():
     while True:
-        data = messages.get()
+        player, data = messages.get()
         for client in clients:
-            client[1].sendall(data)
+            player_ip_port = str(player['ip']) + str(player['port'])
+            client_ip_port = str(client[2]) + str(client[3])
+            if client_ip_port != player_ip_port:
+                client[1].sendall(data)
 
 
 """Make dictionary for each client, every time client sends message add to that queue,
  then in another method read values from queue and send to all clients"""
 
 
-def client_thread(rec_socket, ip, port, max_buffer_size=88888):
+def client_thread(rec_socket, ip, port, max_buffer_size=4096):
     while True:
         data = rec_socket.recv(max_buffer_size)
         if data == b'':
             rec_socket.close()
             print("Player from " + ip + ":" + port + " has left")
             break
-        # data = data.decode("utf8").rstrip()
-        # data = json.loads(data)
-        player = msgpack.unpackb(data)
+        player = pickle.loads(data)
         print("Player sent", player)
-        messages.put(data)
+        messages.put((player, data))
 
 
 def run_server(server):
@@ -56,12 +56,12 @@ def run_server(server):
         send_socket, send_addr = server.accept()
         ip, port = str(rec_addr[0]), str(rec_addr[1])
         print("Player from " + ip + ":" + port + " has joined")
-        clients.append((rec_socket, send_socket, rec_addr, send_addr))
+        clients.append((rec_socket, send_socket, ip, port))
         Thread(target=client_thread, args=(rec_socket, ip, port)).start()
     print("All Players Have Joined")
     print("Get Ready to Robattle!!!")
     # Add reset message to queue python now that game begins
-    messages.put("reset")
+    # messages.put("reset")
 
     # server.close()
 

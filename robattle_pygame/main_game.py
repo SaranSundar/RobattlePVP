@@ -1,6 +1,7 @@
 # Screen dimensions
 import queue
 import sys
+from threading import Thread
 
 import pygame
 
@@ -10,8 +11,30 @@ from robattle_pygame.player import Player
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
+endgame = False
 
-def launch_game(server_queue=queue.Queue(), port_id=1):
+players = {}
+arena = None
+
+
+def get_other_players(player_queue):
+    global players
+    global arena
+    while not endgame:
+        player_data = player_queue.get()
+        key = str(player_data['ip']) + str(player_data['port'])
+        if key in players:
+            player = players[key]
+        else:
+            player = Player(-1, -1)
+        player.set_json_values(player_data)
+        players[key] = player
+
+
+def launch_game(server_queue=queue.Queue(), ip='127.0.0.1', port='8080', player_queue=queue.Queue()):
+    global endgame
+    global players
+    global arena
     """ Main Program """
     pygame.init()
 
@@ -23,11 +46,11 @@ def launch_game(server_queue=queue.Queue(), port_id=1):
     arena = Arena("Arena1.txt")
 
     # Create the player
-    player = Player(port_id)
+    player = Player(ip, port)
     player.arena = arena
 
     # Loop until the user clicks the close button.
-    done = False
+    endgame = False
 
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
@@ -37,21 +60,31 @@ def launch_game(server_queue=queue.Queue(), port_id=1):
 
     server_message = {}
 
+    Thread(target=get_other_players, args=(player_queue,)).start()
+
     # -------- Main Program Loop -----------
-    while not done:
+    while not endgame:
         new_message = player.get_json_values()
         if server_message != new_message:
             server_message = new_message
             server_queue.put(server_message)
+        # if player_queue.get_nowait():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                done = True
+                endgame = True
 
             if event.type == pygame.KEYDOWN:
                 player.keydown(event.key)
 
             if event.type == pygame.KEYUP:
                 player.keyup(event.key)
+
+        active_sprites.empty()
+        active_sprites.add(player)
+        player.arena = arena
+        for key, val in players.items():
+            val.arena = arena
+            active_sprites.add(val)
 
         active_sprites.update()
         arena.update()
