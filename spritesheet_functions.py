@@ -22,7 +22,8 @@ class SpriteSheet(object):
         """ Constructor. Pass in the file name of the sprite sheet. """
 
         file_path = get_path_name("images", filename)
-        self.sprite_sheet = pygame.image.load(file_path).convert()
+        self.sprite_sheet = pygame.image.load(file_path).convert_alpha()
+        #self.sprite_sheet.set_alpha(255)
 
     def get_image(self, col, row, width, height, scale=1, x=-1, y=-1, use_topleft=False):
         """ Grab a single image out of a larger spritesheet
@@ -30,7 +31,7 @@ class SpriteSheet(object):
             and the width and height of the sprite. """
 
         # Create a new blank image
-        image = pygame.Surface([width, height]).convert()
+        image = pygame.Surface([width, height]).convert_alpha()
 
         # Copy the sprite from the large sheet onto the smaller image
         if x != -1 and y != -1:
@@ -52,11 +53,3 @@ class SpriteSheet(object):
 
         # Return the image
         return image
-
-    def get_images(self, x, y, width, height, scale, frames, use_topleft):
-        images = []
-        for i in range(frames):
-            r_image = self.get_image(-1, -1, width, height, scale, x + (width * i), y, use_topleft)
-            l_image = pygame.transform.flip(r_image, True, False)
-            images.append((r_image, l_image))
-        return images
