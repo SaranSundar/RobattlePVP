@@ -30,3 +30,4 @@ EXIT_BLOCK = (4, 5)  # e
 BKEY_BLOCK = (6, 7)  # b
 RGRASS_BLOCK = (8, 8)  # 1
 LGRASS_BLOCK = (8, 10)  # 2
+HPURPLE_BLOCK = (2, 0)  # p

@@ -4,6 +4,7 @@ import time
 import pygame
 
 import constants
+from spritesheet_functions import SpriteSheet
 
 
 class Player(pygame.sprite.Sprite):
@@ -16,9 +17,9 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, w, h):
         super().__init__()
         # self.image = pygame.image.load("metabee_spritesheet.png").convert()
-        self.image = pygame.Surface([w, h])
-        self.image.fill(constants.TEAL)
-
+        spritesheet = SpriteSheet("tiles_spritesheet.png")
+        self.image = spritesheet.get_image(2, 0, 70, 70, 1)
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

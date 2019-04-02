@@ -12,7 +12,7 @@ class World:
         self.sprites.add(self.player)
 
         self.rooms = [Room("level1.txt"), Room("level2.txt")]
-        self.current_room = 1
+        self.current_room = 0
         self.boundary_size = 200
         self.right_boundary = constants.SCREEN_WIDTH - self.boundary_size
         self.left_boundary = self.boundary_size

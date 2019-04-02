@@ -14,9 +14,10 @@ class Block(pygame.sprite.Sprite):
         if image is not None:
             self.image = image
         else:
-            self.image = pygame.Surface([width, height])
+            self.image = pygame.Surface([width, height], pygame.SRCALPHA)
             self.image.fill(color)
 
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.mask = pygame.mask.from_surface(self.image)

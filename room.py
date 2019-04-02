@@ -46,6 +46,9 @@ def create_blocks(filename: str):
                 elif char == "e":
                     color = constants.YELLOW
                     image = constants.EXIT_BLOCK
+                elif char == "p":
+                    color = constants.PURPLE
+                    image = constants.HPURPLE_BLOCK
 
                 if image is not None:
                     image = get_block_sprite(image, spritesheet_block_size, scale_block_size,
@@ -75,7 +78,7 @@ class Room:
     def __init__(self, filename):
         """ Constructor, create our lists. """
         self.background_blocks, self.collision_blocks = create_blocks(filename)
-        self.background_color = constants.WHITE
+        self.background_color = constants.TEAL
         # How far this world has been scrolled left/right
         self.world_shift = 0
 

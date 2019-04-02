@@ -23,7 +23,7 @@ class SpriteSheet(object):
 
         file_path = get_path_name("images", filename)
         self.sprite_sheet = pygame.image.load(file_path).convert_alpha()
-        #self.sprite_sheet.set_alpha(255)
+        # self.sprite_sheet.set_alpha(255)
 
     def get_image(self, col, row, width, height, scale=1, x=-1, y=-1, use_topleft=False):
         """ Grab a single image out of a larger spritesheet
@@ -31,7 +31,7 @@ class SpriteSheet(object):
             and the width and height of the sprite. """
 
         # Create a new blank image
-        image = pygame.Surface([width, height]).convert_alpha()
+        image = pygame.Surface([width, height], pygame.SRCALPHA)
 
         # Copy the sprite from the large sheet onto the smaller image
         if x != -1 and y != -1:
@@ -40,7 +40,7 @@ class SpriteSheet(object):
             image.blit(self.sprite_sheet, (0, 0), (col * width, row * height, width, height))
 
         # Assuming black works as the transparent color
-        image.set_colorkey((255, 255, 255))
+        # image.set_colorkey((255, 255, 255))
         if use_topleft:
             # Use top left of image for transparent color
             transparent_color = image.get_at((0, 0))
