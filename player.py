@@ -40,12 +40,18 @@ class Player(pygame.sprite.Sprite):
         self.x_velocity = 0
         self.y_velocity = 0
 
+    def new_player(self, _dict):
+        self.__dict__.update(_dict)
+
     def pickle_sprite(self):
+        # Doesnt do deep copy which can cause some issues if you change copy variables
         copy = self.__dict__.copy()
         del copy["image"]
         del copy["mask"]
         del copy["room"]
         del copy["_Sprite__g"]
+        p = Player(0, 0)
+        p.new_player(copy)
         copy = pickle.dumps(copy)
         print(copy)
 
