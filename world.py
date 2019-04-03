@@ -10,7 +10,7 @@ class World:
     def __init__(self):
         # Players group used to draw multiple players
         self.players = pygame.sprite.Group()
-        self.player = Player(90, 300, 50, 50)
+        self.player = Player(90, 300)
         self.players.add(self.player)
         self.rooms = [Room("level1.txt"), Room("level2.txt")]
         self.current_room = 0

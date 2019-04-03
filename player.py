@@ -1,4 +1,5 @@
 import math
+import pickle
 import time
 
 import pygame
@@ -15,7 +16,7 @@ class Player(pygame.sprite.Sprite):
     space = False
     scale = 1.75
 
-    def __init__(self, x, y, w, h):
+    def __init__(self, x, y):
         super().__init__()
         # self.image = pygame.image.load("metabee_spritesheet.png").convert()
         spritesheet = SpriteSheet("tiles_spritesheet.png")
@@ -39,6 +40,15 @@ class Player(pygame.sprite.Sprite):
         self.x_velocity = 0
         self.y_velocity = 0
 
+    def pickle_sprite(self):
+        copy = self.__dict__.copy()
+        del copy["image"]
+        del copy["mask"]
+        del copy["room"]
+        del copy["_Sprite__g"]
+        copy = pickle.dumps(copy)
+        print(copy)
+
     def process_keys(self, keys):
         self.down = keys[pygame.K_DOWN]
         self.up = keys[pygame.K_UP]
@@ -48,7 +58,8 @@ class Player(pygame.sprite.Sprite):
         if self.up:
             self.jump()
         if self.space:
-            self.apply_damage()
+            self.pickle_sprite()
+            # self.apply_damage()
 
     def set_room(self, room):
         self.room = room
