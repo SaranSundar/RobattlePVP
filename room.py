@@ -21,41 +21,37 @@ def create_blocks(filename: str):
             for char in line:
                 x = col * scale_block_size
                 y = row * scale_block_size
-                color = constants.WHITE
                 can_collide = True
                 image = None
                 if char == ".":
-                    color = constants.BLACK
+                    image = constants.BACKGROUND_BLOCK
                     can_collide = False
                 elif char == "a":
-                    color = constants.RED
                     image = constants.ALARM_BLOCK
                     can_collide = False
                 elif char == "g":
-                    color = constants.GREEN
                     image = constants.GRASS_BLOCK
                 elif char == "1":
-                    color = constants.GREEN
                     image = constants.RGRASS_BLOCK
                 elif char == "2":
-                    color = constants.GREEN
                     image = constants.LGRASS_BLOCK
                 elif char == "b":
-                    color = constants.BLUE
                     image = constants.BKEY_BLOCK
                 elif char == "e":
-                    color = constants.YELLOW
                     image = constants.EXIT_BLOCK
                 elif char == "p":
-                    color = constants.PURPLE
                     image = constants.HPURPLE_BLOCK
 
                 if image is not None:
                     image = get_block_sprite(image, spritesheet_block_size, scale_block_size,
                                              spritesheet)
-                block = Block(x, y, scale_block_size, scale_block_size, color, image, can_collide)
+                block = Block(x, y, scale_block_size, scale_block_size, image, can_collide)
                 if can_collide:
                     collision_blocks.add(block)
+                    image = get_block_sprite(constants.BACKGROUND_BLOCK, spritesheet_block_size, scale_block_size,
+                                             spritesheet)
+                    bg = Block(x, y, scale_block_size, scale_block_size, image, can_collide)
+                    background_blocks.add(bg)
                 else:
                     background_blocks.add(block)
                 col += 1
@@ -79,28 +75,11 @@ class Room:
         """ Constructor, create our lists. """
         self.background_blocks, self.collision_blocks = create_blocks(filename)
         self.background_color = constants.TEAL
-        # How far this world has been scrolled left/right
-        self.world_shift = 0
 
     def update(self):
         self.background_blocks.update()
         self.collision_blocks.update()
 
     def draw(self, screen):
-        screen.fill(self.background_color)
         self.background_blocks.draw(screen)
         self.collision_blocks.draw(screen)
-
-    def shift_world(self, shift_x):
-        """ When the user moves left/right and we need to scroll
-        everything: """
-
-        # Keep track of the shift amount
-        self.world_shift += shift_x
-
-        # Go through all the sprite lists and shift
-        for platform in self.background_blocks:
-            platform.rect.x += shift_x
-
-        for platform in self.collision_blocks:
-            platform.rect.x += shift_x

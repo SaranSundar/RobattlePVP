@@ -12,13 +12,14 @@ class Player(pygame.sprite.Sprite):
     left = False
     up = False
     down = False
+    space = False
     scale = 1.75
 
     def __init__(self, x, y, w, h):
         super().__init__()
         # self.image = pygame.image.load("metabee_spritesheet.png").convert()
         spritesheet = SpriteSheet("tiles_spritesheet.png")
-        self.image = spritesheet.get_image(2, 0, 70, 70, 1)
+        self.image = spritesheet.get_image(0, 0, 70, 70, 0.75)
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -32,39 +33,27 @@ class Player(pygame.sprite.Sprite):
         # Variables for knock back
         self.weight = 100  # kg
         self.damage_taken = 0.0
-        self.gravity = .35
+        self.gravity = 0.35
         self.time_override = int(round(time.time() * 1000))
         self.should_override = False
         self.x_velocity = 0
         self.y_velocity = 0
 
-    def key_down(self, key):
-        if key == pygame.K_LEFT:
-            self.left = True
-        elif key == pygame.K_RIGHT:
-            self.right = True
-        elif key == pygame.K_UP:
-            self.up = True
+    def process_keys(self, keys):
+        self.down = keys[pygame.K_DOWN]
+        self.up = keys[pygame.K_UP]
+        self.right = keys[pygame.K_RIGHT]
+        self.left = keys[pygame.K_LEFT]
+        self.space = keys[pygame.K_SPACE]
+        if self.up:
             self.jump()
-        elif key == pygame.K_DOWN:
-            self.down = True
-        elif key == pygame.K_SPACE:
+        if self.space:
             self.apply_damage()
-
-    def key_up(self, key):
-        if key == pygame.K_LEFT:
-            self.left = False
-        elif key == pygame.K_RIGHT:
-            self.right = False
-        elif key == pygame.K_UP:
-            self.up = False
-        elif key == pygame.K_DOWN:
-            self.down = False
 
     def set_room(self, room):
         self.room = room
 
-    def apply_damage(self, dmg=1, base_knock_back=5, angle=(7 * math.pi / 4)):
+    def apply_damage(self, dmg=1, base_knock_back=5, angle=(math.pi / 4)):
         angle = -angle
         # Knock-back calculations applied after applying the damage taken
         self.damage_taken += dmg
@@ -79,6 +68,10 @@ class Player(pygame.sprite.Sprite):
         current_milli_sec = int(round(time.time() * 1000))
         self.time_override = current_milli_sec + lockout_time
         self.should_override = True
+
+    def draw(self, surface):
+        self.rect = self.rect.clamp(surface.get_rect())
+        surface.blit(self.image, self.rect)
 
     # Use booleans for movement and update based on booleans in update method
     def update(self):
@@ -102,7 +95,8 @@ class Player(pygame.sprite.Sprite):
                 self.rect.x -= self.delta_x
 
         # Check and see if we hit anything
-        block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False)
+        block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
+                                                     pygame.sprite.collide_mask)
         for block in block_hit_list:
             # If we are moving right,
             # set our right side to the left side of the item we hit
@@ -119,9 +113,9 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += self.delta_y
 
         # Check and see if we hit anything
-        block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False)
+        block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
+                                                     pygame.sprite.collide_mask)
         for block in block_hit_list:
-
             # Reset our position based on the top/bottom of the object.
             if self.should_override:
                 if self.y_velocity > 0:
@@ -135,9 +129,16 @@ class Player(pygame.sprite.Sprite):
                 if self.delta_y > 0:
                     self.rect.bottom = block.rect.top
                 elif self.delta_y < 0:
-                    self.rect.top = block.rect.bottom
+                    pass
+                    # self.rect.top = block.rect.bottom
                 # Stop our vertical movement
                 self.delta_y = 0
+
+        # Player bounds
+        if self.rect.right >= constants.SCREEN_WIDTH:
+            self.rect.right = constants.SCREEN_WIDTH
+        elif self.rect.left <= 0:
+            self.rect.left = 0
 
     def calc_gravity(self):
         """ Calculate effect of gravity. """
@@ -158,7 +159,8 @@ class Player(pygame.sprite.Sprite):
         # Move down 2 pixels because it doesn't work well if we only move down
         # 1 when working with a platform moving down.
         self.rect.y += 2
-        platform_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False)
+        platform_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
+                                                        pygame.sprite.collide_mask)
         self.rect.y -= 2
 
         # If it is ok to jump, set our speed upwards

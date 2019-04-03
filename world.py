@@ -1,47 +1,47 @@
 import pygame
 
-import constants
 from player import Player
 from room import Room
+
+BACKGROUND_COLOR = pygame.Color("cyan")
 
 
 class World:
     def __init__(self):
-        self.sprites = pygame.sprite.Group()
+        # Players group used to draw multiple players
+        self.players = pygame.sprite.Group()
         self.player = Player(90, 300, 50, 50)
-        self.sprites.add(self.player)
-
+        self.players.add(self.player)
         self.rooms = [Room("level1.txt"), Room("level2.txt")]
         self.current_room = 0
-        self.boundary_size = 200
-        self.right_boundary = constants.SCREEN_WIDTH - self.boundary_size
-        self.left_boundary = self.boundary_size
+        # Main Game Loop variables
+        self.done = False
+        self.fps = 60.0
+        self.clock = pygame.time.Clock()
+        self.screen = None
 
-        self.player.set_room(self.rooms[self.current_room])
+    def run(self, screen):
+        self.screen = screen
+        while not self.done:
+            self.process_events()
+            self.update()
+            self.draw()
+            pygame.display.update()
+            self.clock.tick(self.fps)
 
-    def calculate_right_diff(self):
-        return self.player.rect.right - self.right_boundary
-
-    def calculate_left_diff(self):
-        return self.left_boundary - self.player.rect.left
-
-    def key_down(self, key):
-        self.player.key_down(key)
-
-    def key_up(self, key):
-        self.player.key_up(key)
+    def process_events(self):
+        keys = pygame.key.get_pressed()
+        self.player.process_keys(keys)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.done = True
 
     def update(self):
         # --- Game Logic ---
-        self.sprites.update()
-        self.rooms[self.current_room].update()
-        # Player status
-        if self.player.rect.right >= constants.SCREEN_WIDTH:
-            self.player.rect.right = constants.SCREEN_WIDTH
-        elif self.player.rect.left <= 0:
-            self.player.rect.left = 0
+        self.player.set_room(self.rooms[self.current_room])
+        self.player.update()
 
-    def draw(self, screen):
-        self.rooms[self.current_room].draw(screen)
-        self.sprites.draw(screen)
-
+    def draw(self):
+        self.screen.fill(BACKGROUND_COLOR)
+        self.rooms[self.current_room].draw(self.screen)
+        self.players.draw(self.screen)
