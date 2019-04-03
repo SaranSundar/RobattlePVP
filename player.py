@@ -5,7 +5,7 @@ import time
 import pygame
 
 import constants
-from spritesheet_functions import SpriteSheet
+from animation import Animation
 
 
 class Player(pygame.sprite.Sprite):
@@ -18,9 +18,9 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         super().__init__()
-        # self.image = pygame.image.load("metabee_spritesheet.png").convert()
-        spritesheet = SpriteSheet("tiles_spritesheet.png")
-        self.image = spritesheet.get_image(0, 0, 70, 70, 0.75)
+        # Animation setup
+        animation = Animation("Metabee_SpriteSheet.png", "Metabee.txt")
+        self.image = animation.get_image()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
 
         # Set speed vector of player
         self.delta_x = 5
-        self.delta_y = 5
+        self.delta_y = 0
         self.room = None
 
         # Variables for knock back
@@ -64,8 +64,8 @@ class Player(pygame.sprite.Sprite):
         if self.up:
             self.jump()
         if self.space:
-            self.pickle_sprite()
-            # self.apply_damage()
+            # self.pickle_sprite()
+            self.apply_damage()
 
     def set_room(self, room):
         self.room = room
