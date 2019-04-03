@@ -19,7 +19,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         # Animation setup
-        animation = Animation("Metabee_SpriteSheet.png", "Metabee.txt")
+        animation = Animation("Metabee_SpriteSheet_6.png", "Metabee.txt")
         self.image = animation.get_image()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
