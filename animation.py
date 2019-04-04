@@ -49,9 +49,9 @@ def get_sprite_dict(filename):
 
 
 class Animation:
-    def __init__(self, spritesheet, textfile):
+    def __init__(self, spritesheet, textfile, scale):
         self.sprite_dict = get_sprite_dict(textfile)
-        self.sprites = get_sprites_from_dict(spritesheet, self.sprite_dict)
+        self.sprites = get_sprites_from_dict(spritesheet, self.sprite_dict, scale)
         self.current_frame = 0
         self.animation = "Idle"
 

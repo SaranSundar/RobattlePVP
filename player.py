@@ -6,6 +6,7 @@ import pygame
 
 import constants
 from animation import Animation
+from block import mask_from_surface
 
 
 class Player(pygame.sprite.Sprite):
@@ -19,9 +20,10 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         # Animation setup
-        animation = Animation("Metabee_SpriteSheet_6.png", "Metabee.txt")
-        self.image = animation.get_image()
-        self.mask = pygame.mask.from_surface(self.image)
+        self.animation = Animation("Metabee_SpriteSheet_4.png", "Metabee.txt", scale=1.5)
+        self.image = self.animation.get_image()
+        self.mask = mask_from_surface(self.image,
+                                      threshold=constants.ALPHA_THRESHOLD)  # pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -88,7 +90,8 @@ class Player(pygame.sprite.Sprite):
 
     def draw(self, surface):
         self.rect = self.rect.clamp(surface.get_rect())
-        surface.blit(self.image, self.rect)
+        img = self.image
+        surface.blit(img, img.get_rect())
 
     # Use booleans for movement and update based on booleans in update method
     def update(self):
@@ -118,10 +121,12 @@ class Player(pygame.sprite.Sprite):
             # If we are moving right,
             # set our right side to the left side of the item we hit
             if self.right:
-                self.rect.right = block.rect.left
+                self.rect.x -= self.delta_x
+                # self.rect.right = block.rect.left
             elif self.left:
+                self.rect.x += self.delta_x
                 # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
+                # self.rect.left = block.rect.right
 
         # # Move up/down
         if self.should_override:
@@ -146,7 +151,7 @@ class Player(pygame.sprite.Sprite):
                 if self.delta_y > 0:
                     self.rect.bottom = block.rect.top
                 elif self.delta_y < 0:
-                    pass
+                    self.rect.bottom = block.rect.top
                     # self.rect.top = block.rect.bottom
                 # Stop our vertical movement
                 self.delta_y = 0
