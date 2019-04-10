@@ -35,7 +35,3 @@ class Block(pygame.sprite.Sprite):
         self.rect.y = y
         self.mask = mask_from_surface(self.image,
                                       threshold=constants.ALPHA_THRESHOLD)  # pygame.mask.from_surface(self.image)
-
-    def draw(self, surface):
-        self.rect = self.rect.clamp(surface.get_rect())
-        surface.blit(self.image, self.rect)

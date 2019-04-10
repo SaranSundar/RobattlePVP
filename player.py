@@ -20,7 +20,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         # Animation setup
-        self.animation = Animation("Metabee/Metabee_SpriteSheet.png", "Metabee.txt", scale=1.5)
+        self.animation = Animation("Metabee/Metabee_SpriteSheet.png", "Metabee.txt", scale=1.5, animation_name="Idle")
+        self.animation.update_animation("Idle")
         self.image = self.animation.get_image()
         self.mask = mask_from_surface(self.image,
                                       threshold=constants.ALPHA_THRESHOLD)  # pygame.mask.from_surface(self.image)
@@ -43,9 +44,8 @@ class Player(pygame.sprite.Sprite):
         self.y_velocity = 0
 
     def draw(self, surface):
-        self.rect = self.rect.clamp(surface.get_rect())
-        img = self.image
-        surface.blit(img, img.get_rect())
+        image = self.animation.get_image()
+        surface.blit(image, self.rect)
 
     def new_player(self, _dict):
         self.__dict__.update(_dict)
@@ -95,6 +95,7 @@ class Player(pygame.sprite.Sprite):
 
     # Use booleans for movement and update based on booleans in update method
     def update(self):
+        self.animation.update_frame()
         if self.should_override:
             current_milli_sec = int(round(time.time() * 1000))
             if current_milli_sec >= self.time_override:

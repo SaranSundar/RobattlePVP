@@ -24,9 +24,7 @@ def get_row_animations(spritesheet, y, width, height, length, scale):
         image = pygame.Surface([width, height], pygame.SRCALPHA)
         image.blit(spritesheet, (0, 0), (col * width, y, width, height))
         if scale != 1:
-            width = int(width * scale)
-            height = int(height * scale)
-            image = pygame.transform.scale(image, (width, height))
+            image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
         row.append(image)
     return row
 
@@ -54,31 +52,33 @@ def clock():
 
 
 class Animation:
-    def __init__(self, spritesheet, textfile, scale):
+    def __init__(self, spritesheet, textfile, scale, animation_name):
         self.sprite_dict = get_sprite_dict(textfile)
         self.sprites = get_sprites_from_dict(spritesheet, self.sprite_dict, scale)
         self.current_frame = 0
-        self.animation = "Walk"
-        self.timeOfNextFrame = clock()
-        self.animation_speed = 80  # ms
+        # Both will be set in calculate animation speed
+        self.animation_speed = None
+        self.timeOfNextFrame = None
+        self.animation = animation_name
+        self.calculate_animation_speed()
 
-    def animate_sprite(self):
-        if clock() > self.timeOfNextFrame:  # We only animate our character every 60ms.
-            self.current_frame = (self.current_frame + 1) % len(
-                self.sprites[self.animation])  # There are 6 frames of animation in each direction
-            self.timeOfNextFrame += self.animation_speed  # so the modulus allows it to loop
+    def calculate_animation_speed(self):
+        self.animation_speed = 640 / len(self.sprites[self.animation])
+        self.current_frame = 0
+        self.timeOfNextFrame = clock() + self.animation_speed
+
+    def get_image(self):
+        return self.sprites[self.animation][self.current_frame]
+
+    def update_frame(self):
+        if clock() > self.timeOfNextFrame:
+            self.current_frame = (self.current_frame + 1) % len(self.sprites[self.animation])
+            self.timeOfNextFrame += self.animation_speed
+
+    def update_animation(self, animation_name):
+        self.animation = animation_name
+        self.calculate_animation_speed()
 
     def reset_clock(self):
         self.timeOfNextFrame = clock()
         self.current_frame = 0
-
-    def update_animation(self, animation_name):
-        self.animation = animation_name
-
-    def update_frame(self):
-        self.current_frame += 1
-        if self.current_frame >= len(self.sprites[self.animation]):
-            self.current_frame = 0
-
-    def get_image(self):
-        return self.sprites[self.animation][self.current_frame]

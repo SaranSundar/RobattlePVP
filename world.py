@@ -9,9 +9,7 @@ BACKGROUND_COLOR = pygame.Color("cyan")
 class World:
     def __init__(self):
         # Players group used to draw multiple players
-        self.players = pygame.sprite.Group()
         self.player = Player(90, 300)
-        self.players.add(self.player)
         self.rooms = [Room("level1.txt"), Room("level2.txt")]
         self.current_room = 0
         # Main Game Loop variables
@@ -44,4 +42,4 @@ class World:
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)
         self.rooms[self.current_room].draw(self.screen)
-        self.players.draw(self.screen)
+        self.player.draw(self.screen)
