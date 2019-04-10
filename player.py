@@ -20,7 +20,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         # Animation setup
-        self.animation = Animation("Metabee_SpriteSheet_4.png", "Metabee.txt", scale=1.5)
+        self.animation = Animation("Metabee/Metabee_SpriteSheet.png", "Metabee.txt", scale=1.5)
         self.image = self.animation.get_image()
         self.mask = mask_from_surface(self.image,
                                       threshold=constants.ALPHA_THRESHOLD)  # pygame.mask.from_surface(self.image)
@@ -41,6 +41,11 @@ class Player(pygame.sprite.Sprite):
         self.should_override = False
         self.x_velocity = 0
         self.y_velocity = 0
+
+    def draw(self, surface):
+        self.rect = self.rect.clamp(surface.get_rect())
+        img = self.image
+        surface.blit(img, img.get_rect())
 
     def new_player(self, _dict):
         self.__dict__.update(_dict)
@@ -87,11 +92,6 @@ class Player(pygame.sprite.Sprite):
         current_milli_sec = int(round(time.time() * 1000))
         self.time_override = current_milli_sec + lockout_time
         self.should_override = True
-
-    def draw(self, surface):
-        self.rect = self.rect.clamp(surface.get_rect())
-        img = self.image
-        surface.blit(img, img.get_rect())
 
     # Use booleans for movement and update based on booleans in update method
     def update(self):
@@ -187,4 +187,4 @@ class Player(pygame.sprite.Sprite):
 
         # If it is ok to jump, set our speed upwards
         if len(platform_hit_list) > 0 or self.rect.bottom >= constants.SCREEN_HEIGHT:
-            self.delta_y = -10
+            self.delta_y = -11

@@ -10,7 +10,7 @@ screen = pygame.display.set_mode([constants.SCREEN_WIDTH, constants.SCREEN_HEIGH
 
 
 def main():
-    pygame.display.set_caption("Walls and Rooms")
+    pygame.display.set_caption("Robattle Tournament")
     world = World()
     world.run(screen)
     pygame.quit()
