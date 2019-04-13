@@ -74,7 +74,6 @@ class Player(pygame.sprite.Sprite):
         self.left = keys[pygame.K_LEFT]
         self.space = keys[pygame.K_SPACE]
         if self.up:
-            self.animation.update_animation("Jumping")
             self.jump()
         else:
             self.single_jump = False
@@ -199,6 +198,9 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y >= constants.SCREEN_HEIGHT - self.rect.height and self.delta_y >= 0:
             self.delta_y = 0
             self.rect.y = constants.SCREEN_HEIGHT - self.rect.height
+
+        if self.delta_y < 0:
+            self.animation.update_animation("Jumping")
 
     def jump(self):
         """ Called when user hits 'jump' button. """
