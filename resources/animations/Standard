@@ -4,8 +4,10 @@ Idle
 ---------
 Walk
 ---------
-Jump
+Jumping
 ---------
+Falling
+________
 Damaged
 ---------
 Attack-1
@@ -18,5 +20,13 @@ Attack-4
 ---------
 Block
 ---------
-Projectiles
+Projectile-1
+---------
+Projectile-1
+---------
+Projectile-2
+---------
+Projectile-3
+---------
+Projectile-4
 ---------

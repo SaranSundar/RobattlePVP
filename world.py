@@ -10,7 +10,10 @@ class World:
     def __init__(self):
         # Players group used to draw multiple players
         self.player = Player(90, 300, 1256)
-        self.players = {self.player.unique_id: self.player}
+        self.player2 = Player(290, 300, 1257)
+        self.players = {}
+        self.add_player(self.player)
+        self.add_player(self.player2)
         self.rooms = [Room("level1.txt"), Room("level2.txt")]
         self.current_room = 0
         # Main Game Loop variables
@@ -18,6 +21,9 @@ class World:
         self.fps = 60.0
         self.clock = pygame.time.Clock()
         self.screen = None
+
+    def add_player(self, player):
+        self.players[player.unique_id] = player
 
     def run(self, screen):
         self.screen = screen
@@ -38,7 +44,7 @@ class World:
     def update(self):
         # --- Game Logic ---
         self.player.set_room(self.rooms[self.current_room])
-        self.player.update()
+        self.player.update(self.players)
 
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)

@@ -9,16 +9,18 @@ def get_sprites_from_dict(spritesheet, sprite_dict, scale=1):
     spritesheet = get_path_name("images", spritesheet)
     spritesheet = pygame.image.load(spritesheet).convert_alpha()
     sprites = {}
+    collision_masks = {}
     y = 0
     for key, value in sprite_dict.items():
         # print(key, value)
-        sprites[key] = get_row_animations(spritesheet, y, value[0], value[1], value[2], scale)
+        sprites[key], collision_masks[key] = get_row_animations(spritesheet, y, value[0], value[1], value[2], scale)
         y += value[1]
-    return sprites
+    return sprites, collision_masks
 
 
 def get_row_animations(spritesheet, y, width, height, length, scale):
     row = []
+    masks = []
     for col in range(length):
         # Create a new blank image
         image = pygame.Surface([width, height], pygame.SRCALPHA)
@@ -26,7 +28,8 @@ def get_row_animations(spritesheet, y, width, height, length, scale):
         if scale != 1:
             image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
         row.append(image)
-    return row
+        masks.append(pygame.mask.from_surface(image))
+    return row, masks
 
 
 def get_sprite_dict(filename):
@@ -54,14 +57,16 @@ def clock():
 class Animation:
     def __init__(self, spritesheet, collision_spritesheet, textfile, scale, animation_name):
         self.sprite_dict = get_sprite_dict(textfile)
-        self.sprites = get_sprites_from_dict(spritesheet, self.sprite_dict, scale)
-        self.collision_sprites = get_sprites_from_dict(collision_spritesheet, self.sprite_dict, scale)
+        self.sprites, unused_masks = get_sprites_from_dict(spritesheet, self.sprite_dict, scale)
+        self.collision_sprites, self.collision_masks = get_sprites_from_dict(collision_spritesheet, self.sprite_dict,
+                                                                             scale)
         self.current_frame = 0
         # Both will be set in calculate animation speed
         self.animation_speed = None
         self.timeOfNextFrame = None
         self.animation = animation_name
         self.calculate_animation_speed()
+        # NEED TO CREATE LIST OF MASKS TO USE
 
     def calculate_animation_speed(self):
         self.animation_speed = 640 / len(self.sprites[self.animation])
@@ -70,7 +75,8 @@ class Animation:
 
     def get_image(self):
         return self.sprites[self.animation][self.current_frame], self.collision_sprites[self.animation][
-            self.current_frame]
+            self.current_frame], self.collision_masks[self.animation][
+                   self.current_frame]
 
     def update_frame(self):
         if clock() > self.timeOfNextFrame:
@@ -78,8 +84,9 @@ class Animation:
             self.timeOfNextFrame += self.animation_speed
 
     def update_animation(self, animation_name):
-        self.animation = animation_name
-        self.calculate_animation_speed()
+        if self.animation != animation_name:
+            self.animation = animation_name
+            self.calculate_animation_speed()
 
     def reset_clock(self):
         self.timeOfNextFrame = clock()
