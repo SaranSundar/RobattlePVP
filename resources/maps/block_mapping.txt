@@ -1,0 +1,12 @@
+BG_BLOCK    =   .   /   (7,3)   /   False
+GRASS_BLOCK =   g   /   (7, 8)
+ALARM_BLOCK =   a   /   (0, 2)  /   False
+TORCH_BLOCK =   t   /   (1, 2)
+ITEM_BLOCK  =   i   /   (0, 0)
+CRATE_BLOCK =   c   /   (0, 11)
+WARN_BLOCK  =   w   /   (0, 5)
+EXIT_BLOCK  =   e   /   (4, 5)
+BKEY_BLOCK  =   b   /   (6, 7)
+RGRAS_BLOCK =   1   /   (8, 8)
+LGRAS_BLOCK =   2   /   (8, 10)
+PHALF_BLOCK =   5   /   (2, 0)

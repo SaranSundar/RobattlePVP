@@ -169,7 +169,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.left = 0
 
         self.image = collision_image
-        print(self.rect.bottom)
         self.animation.update_frame()
 
     def calc_gravity(self):

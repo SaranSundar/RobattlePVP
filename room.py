@@ -12,6 +12,7 @@ def create_blocks(filename: str):
     scale_block_size = 55
     spritesheet_block_size = 70  # 70 x 70
     file_path = get_path_name("maps", filename)
+    block_mapping = create_block_mapping()
     with open(file_path, 'r') as f:
         lines = f.readlines()
         row = 0
@@ -21,42 +22,43 @@ def create_blocks(filename: str):
             for char in line:
                 x = col * scale_block_size
                 y = row * scale_block_size
-                can_collide = True
-                image = None
-                if char == ".":
-                    image = constants.BACKGROUND_BLOCK
-                    can_collide = False
-                elif char == "a":
-                    image = constants.ALARM_BLOCK
-                    can_collide = False
-                elif char == "g":
-                    image = constants.GRASS_BLOCK
-                elif char == "1":
-                    image = constants.RGRASS_BLOCK
-                elif char == "2":
-                    image = constants.LGRASS_BLOCK
-                elif char == "b":
-                    image = constants.BKEY_BLOCK
-                elif char == "e":
-                    image = constants.EXIT_BLOCK
-                elif char == "p":
-                    image = constants.HPURPLE_BLOCK
-
-                if image is not None:
-                    image = get_block_sprite(image, spritesheet_block_size, scale_block_size,
-                                             spritesheet)
+                image = block_mapping[char][0]
+                can_collide = block_mapping[char][1]
+                image = get_block_sprite(image, spritesheet_block_size, scale_block_size,
+                                         spritesheet)
                 block = Block(x, y, scale_block_size, scale_block_size, image, can_collide)
+                if char != ".":
+                    bg_image = get_block_sprite(constants.BACKGROUND_BLOCK, spritesheet_block_size, scale_block_size,
+                                                spritesheet)
+                    bg = Block(x, y, scale_block_size, scale_block_size, bg_image, can_collide)
+                    background_blocks.add(bg)
                 if can_collide:
                     collision_blocks.add(block)
-                    image = get_block_sprite(constants.BACKGROUND_BLOCK, spritesheet_block_size, scale_block_size,
-                                             spritesheet)
-                    bg = Block(x, y, scale_block_size, scale_block_size, image, can_collide)
-                    background_blocks.add(bg)
                 else:
                     background_blocks.add(block)
                 col += 1
             row += 1
     return background_blocks, collision_blocks
+
+
+def create_block_mapping():
+    file_path = get_path_name("maps", "block_mapping.txt")
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+        block_mapping = {}
+        for line in lines:
+            line = line.strip()
+            line = line.replace("\t", "")
+            line = line.replace(" ", "")
+            line = line.split("/")
+            location = eval(line[1])
+            letter = line[0].split("=")[1]
+            if len(line) == 2:
+                block = (location, True)
+            else:
+                block = (location, False)
+            block_mapping[letter] = block
+        return block_mapping
 
 
 def get_block_sprite(block, block_size, scale_size, spritesheet):
