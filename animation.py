@@ -9,13 +9,15 @@ def get_sprites_from_dict(spritesheet, sprite_dict, scale=1):
     spritesheet = get_path_name("images", spritesheet)
     spritesheet = pygame.image.load(spritesheet).convert_alpha()
     sprites = {}
+    animation_speeds = {}
     collision_masks = {}
     y = 0
     for key, value in sprite_dict.items():
         # print(key, value)
         sprites[key], collision_masks[key] = get_row_animations(spritesheet, y, value[0], value[1], value[2], scale)
+        animation_speeds[key] = value[3]
         y += value[1]
-    return sprites, collision_masks
+    return sprites, collision_masks, animation_speeds
 
 
 def get_row_animations(spritesheet, y, width, height, length, scale):
@@ -62,9 +64,11 @@ def clock():
 class Animation:
     def __init__(self, spritesheet, collision_spritesheet, textfile, scale, animation_name):
         self.sprite_dict = get_sprite_dict(textfile)
-        self.sprites, unused_masks = get_sprites_from_dict(spritesheet, self.sprite_dict, scale)
-        self.collision_sprites, self.collision_masks = get_sprites_from_dict(collision_spritesheet, self.sprite_dict,
-                                                                             scale)
+        self.sprites, unused_masks, unused_animation_speeds = get_sprites_from_dict(spritesheet, self.sprite_dict,
+                                                                                    scale)
+        self.collision_sprites, self.collision_masks, self.animation_speeds = get_sprites_from_dict(
+            collision_spritesheet, self.sprite_dict,
+            scale)
         self.current_frame = 0
         # Both will be set in calculate animation speed
         self.animation_speed = None
@@ -75,7 +79,8 @@ class Animation:
         # NEED TO CREATE LIST OF MASKS TO USE
 
     def calculate_animation_speed(self):
-        self.animation_speed = 640 / len(self.sprites[self.animation][self.is_left])
+        self.animation_speed = self.animation_speeds[
+            self.animation]  # 640 / len(self.sprites[self.animation][self.is_left])
         self.current_frame = 0
         self.timeOfNextFrame = clock() + self.animation_speed
 

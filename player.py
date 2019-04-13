@@ -17,6 +17,7 @@ class Player(pygame.sprite.Sprite):
     attack1 = False
     attack2 = False
     attack3 = False
+    attack4 = False
     on_ground = False
     last_press = "r"
     scale = 1.75
@@ -80,18 +81,17 @@ class Player(pygame.sprite.Sprite):
         self.attack1 = keys[pygame.K_q]
         self.attack2 = keys[pygame.K_w]
         self.attack3 = keys[pygame.K_e]
+        self.attack4 = keys[pygame.K_r]
         if self.right:
             self.last_press = "r"
         elif self.left:
             self.last_press = "l"
-        if self.attack1:
-            self.animation.update_animation("Attack-1")
         if self.up:
             self.jump()
         if self.space:
             # self.pickle_sprite()
             self.apply_damage()
-        #print(self.up)
+        # print(self.up)
 
     def set_room(self, room):
         self.room = room
@@ -117,12 +117,20 @@ class Player(pygame.sprite.Sprite):
         # Were on the ground
         # print(self.single_jump, self.right, self.left)
         # single jump is true or false, but left and right are 1 or 0
-        if self.on_ground:
+        if self.attack1:
+            self.animation.update_animation("Attack-1")
+        elif self.attack2:
+            self.animation.update_animation("Attack-2")
+        elif self.attack3:
+            self.animation.update_animation("Attack-3")
+        elif self.attack4:
+            self.animation.update_animation("Attack-4")
+        elif self.on_ground:
             if not self.right and not self.left:
                 self.animation.update_animation("Idle")
             elif self.right or self.left:
                 self.animation.update_animation("Walking")
-        else:
+        elif not self.on_ground:
             # Were jumping
             # print(self.delta_y)
             if self.delta_y < 0:
