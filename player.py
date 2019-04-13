@@ -220,7 +220,7 @@ class Player(pygame.sprite.Sprite):
         elif self.rect.left <= 0:
             self.rect.left = 0
 
-        self.image = locked_image
+        self.image = collision_image
         self.choose_animation()
         self.animation.update_frame()
 
