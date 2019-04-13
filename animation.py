@@ -20,7 +20,9 @@ def get_sprites_from_dict(spritesheet, sprite_dict, scale=1):
 
 def get_row_animations(spritesheet, y, width, height, length, scale):
     row = []
+    flip_row = []
     masks = []
+    flip_masks = []
     for col in range(length):
         # Create a new blank image
         image = pygame.Surface([width, height], pygame.SRCALPHA)
@@ -29,7 +31,10 @@ def get_row_animations(spritesheet, y, width, height, length, scale):
             image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
         row.append(image)
         masks.append(pygame.mask.from_surface(image))
-    return row, masks
+        flip_image = pygame.transform.flip(image, True, False)
+        flip_row.append(flip_image)
+        flip_masks.append(pygame.mask.from_surface(flip_image))
+    return (row, flip_row), (masks, flip_masks)
 
 
 def get_sprite_dict(filename):
@@ -65,22 +70,24 @@ class Animation:
         self.animation_speed = None
         self.timeOfNextFrame = None
         self.animation = animation_name
+        self.is_left = 0
         self.calculate_animation_speed()
         # NEED TO CREATE LIST OF MASKS TO USE
 
     def calculate_animation_speed(self):
-        self.animation_speed = 640 / len(self.sprites[self.animation])
+        self.animation_speed = 640 / len(self.sprites[self.animation][self.is_left])
         self.current_frame = 0
         self.timeOfNextFrame = clock() + self.animation_speed
 
-    def get_image(self):
-        return self.sprites[self.animation][self.current_frame], self.collision_sprites[self.animation][
-            self.current_frame], self.collision_masks[self.animation][
-                   self.current_frame]
+    def get_image(self, last_press="r"):
+        self.is_left = last_press is "l"
+        return self.sprites[self.animation][self.is_left][self.current_frame], \
+               self.collision_sprites[self.animation][self.is_left][self.current_frame], \
+               self.collision_masks[self.animation][self.is_left][self.current_frame]
 
     def update_frame(self):
         if clock() > self.timeOfNextFrame:
-            self.current_frame = (self.current_frame + 1) % len(self.sprites[self.animation])
+            self.current_frame = (self.current_frame + 1) % len(self.sprites[self.animation][self.is_left])
             self.timeOfNextFrame += self.animation_speed
 
     def update_animation(self, animation_name):

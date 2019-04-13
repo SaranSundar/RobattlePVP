@@ -4,7 +4,7 @@ Icon
 Idle
 34x55x6
 ---------
-Walk
+Walking
 31x53x8
 ---------
 Jumping

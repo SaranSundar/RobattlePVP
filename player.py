@@ -15,6 +15,7 @@ class Player(pygame.sprite.Sprite):
     down = False
     space = False
     single_jump = False
+    last_press = "r"
     scale = 1.75
 
     def __init__(self, x, y, unique_id):
@@ -73,6 +74,10 @@ class Player(pygame.sprite.Sprite):
         self.right = keys[pygame.K_RIGHT]
         self.left = keys[pygame.K_LEFT]
         self.space = keys[pygame.K_SPACE]
+        if self.right:
+            self.last_press = "r"
+        elif self.left:
+            self.last_press = "l"
         if self.up:
             self.jump()
         else:
@@ -102,7 +107,11 @@ class Player(pygame.sprite.Sprite):
 
     # Use booleans for movement and update based on booleans in update method
     def update(self, players):
-        locked_image, collision_image, collision_mask = self.animation.get_image()
+        if self.delta_y < 0:
+            self.animation.update_animation("Jumping")
+        elif self.delta_y > 0:
+            self.animation.update_animation("Falling")
+        locked_image, collision_image, collision_mask = self.animation.get_image(self.last_press)
         self.image = collision_image
         self.mask = collision_mask
         if self.should_override:
@@ -191,20 +200,16 @@ class Player(pygame.sprite.Sprite):
         else:
             self.delta_y += self.gravity
 
-        if self.delta_y > 0:
-            self.animation.update_animation("Falling")
-
         # See if we are on the ground.
         if self.rect.y >= constants.SCREEN_HEIGHT - self.rect.height and self.delta_y >= 0:
             self.delta_y = 0
             self.rect.y = constants.SCREEN_HEIGHT - self.rect.height
 
-        if self.delta_y < 0:
-            self.animation.update_animation("Jumping")
-
     def jump(self):
         """ Called when user hits 'jump' button. """
         if not self.single_jump:
+            self.left = False
+            self.right = False
             self.single_jump = True
             # move down a bit and see if there is a platform below us.
             # Move down 2 pixels because it doesn't work well if we only move down
