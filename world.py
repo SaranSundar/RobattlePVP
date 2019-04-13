@@ -1,6 +1,6 @@
 import pygame
 
-from player import Player
+from fighters.metabee import Metabee
 from room import Room
 
 BACKGROUND_COLOR = pygame.Color("cyan")
@@ -9,8 +9,8 @@ BACKGROUND_COLOR = pygame.Color("cyan")
 class World:
     def __init__(self):
         # Players group used to draw multiple players
-        self.player = Player(90, 300, 1256)
-        self.player2 = Player(290, 300, 1257)
+        self.player = Metabee(90, 300, 1256)
+        self.player2 = Metabee(290, 300, 1257)
         self.players = {}
         self.add_player(self.player)
         self.add_player(self.player2)

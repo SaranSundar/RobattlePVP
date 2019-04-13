@@ -22,12 +22,11 @@ class Player(pygame.sprite.Sprite):
     last_press = "r"
     scale = 1.75
 
-    def __init__(self, x, y, unique_id):
+    def __init__(self, x, y, unique_id, spritesheet, hitbox, animations):
         super().__init__()
         self.unique_id = unique_id
         # Animation setup
-        self.animation = Animation("Metabee/Metabee_SpriteSheet.png", "Metabee/Metabee_Hitbox.png", "Metabee.txt",
-                                   scale=1.5, animation_name="Idle")
+        self.animation = Animation(spritesheet, hitbox, animations, scale=1.5, animation_name="Idle")
         self.animation.update_animation("Idle")
         self.image, collision_image, self.mask = self.animation.get_image()
         self.rect = self.image.get_rect()
