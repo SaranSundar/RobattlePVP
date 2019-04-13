@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
     attack1 = False
     attack2 = False
     attack3 = False
-    single_jump = False
+    on_ground = False
     last_press = "r"
     scale = 1.75
 
@@ -88,11 +88,10 @@ class Player(pygame.sprite.Sprite):
             self.animation.update_animation("Attack-1")
         if self.up:
             self.jump()
-        else:
-            self.single_jump = False
         if self.space:
             # self.pickle_sprite()
             self.apply_damage()
+        #print(self.up)
 
     def set_room(self, room):
         self.room = room
@@ -116,17 +115,19 @@ class Player(pygame.sprite.Sprite):
     def choose_animation(self):
         # WRITE CODE TO DECIDE WHAT ANIMATION TO CHOOSE ALL IN THIS ONE METHOD THEN CALL IN UPDATE
         # Were on the ground
-        if self.single_jump is False:
+        # print(self.single_jump, self.right, self.left)
+        # single jump is true or false, but left and right are 1 or 0
+        if self.on_ground:
             if not self.right and not self.left:
                 self.animation.update_animation("Idle")
             elif self.right or self.left:
                 self.animation.update_animation("Walking")
         else:
             # Were jumping
-            print(self.delta_y)
+            # print(self.delta_y)
             if self.delta_y < 0:
                 self.animation.update_animation("Jumping")
-            elif self.delta_y > 0:
+            elif self.delta_y > 2:
                 self.animation.update_animation("Falling")
 
     # Use booleans for movement and update based on booleans in update method
@@ -189,8 +190,10 @@ class Player(pygame.sprite.Sprite):
 
             else:
                 if self.delta_y > 0:
+                    self.on_ground = True
                     self.rect.bottom = block.rect.top
                 elif self.delta_y < 0:
+                    self.on_ground = True
                     self.rect.bottom = block.rect.top
                 # self.rect.top = block.rect.bottom
                 # Stop our vertical movement
@@ -220,25 +223,24 @@ class Player(pygame.sprite.Sprite):
         else:
             self.delta_y += self.gravity
 
-        # See if we are on the ground.
+        # See if we are on the very bottom edge of the screen
         if self.rect.y >= constants.SCREEN_HEIGHT - self.rect.height and self.delta_y >= 0:
             self.delta_y = 0
             self.rect.y = constants.SCREEN_HEIGHT - self.rect.height
 
     def jump(self):
         """ Called when user hits 'jump' button. """
-        if self.single_jump is False:
+        # move down a bit and see if there is a platform below us.
+        # Move down 2 pixels because it doesn't work well if we only move down
+        # 1 when working with a platform moving down.
+        self.rect.y += 2
+        platform_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
+                                                        pygame.sprite.collide_mask)
+        self.rect.y -= 2
+
+        # If it is ok to jump, set our speed upwards
+        if len(platform_hit_list) > 0 or self.rect.bottom >= constants.SCREEN_HEIGHT:
             self.left = False
             self.right = False
-            self.single_jump = True
-            # move down a bit and see if there is a platform below us.
-            # Move down 2 pixels because it doesn't work well if we only move down
-            # 1 when working with a platform moving down.
-            self.rect.y += 2
-            platform_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
-                                                            pygame.sprite.collide_mask)
-            self.rect.y -= 2
-
-            # If it is ok to jump, set our speed upwards
-            if len(platform_hit_list) > 0 or self.rect.bottom >= constants.SCREEN_HEIGHT:
-                self.delta_y = -11
+            self.on_ground = False
+            self.delta_y = -11
