@@ -14,6 +14,9 @@ class Player(pygame.sprite.Sprite):
     up = False
     down = False
     space = False
+    attack1 = False
+    attack2 = False
+    attack3 = False
     single_jump = False
     last_press = "r"
     scale = 1.75
@@ -74,10 +77,15 @@ class Player(pygame.sprite.Sprite):
         self.right = keys[pygame.K_RIGHT]
         self.left = keys[pygame.K_LEFT]
         self.space = keys[pygame.K_SPACE]
+        self.attack1 = keys[pygame.K_q]
+        self.attack2 = keys[pygame.K_w]
+        self.attack3 = keys[pygame.K_e]
         if self.right:
             self.last_press = "r"
         elif self.left:
             self.last_press = "l"
+        if self.attack1:
+            self.animation.update_animation("Attack-1")
         if self.up:
             self.jump()
         else:
@@ -105,12 +113,24 @@ class Player(pygame.sprite.Sprite):
         self.time_override = current_milli_sec + lockout_time
         self.should_override = True
 
+    def choose_animation(self):
+        # WRITE CODE TO DECIDE WHAT ANIMATION TO CHOOSE ALL IN THIS ONE METHOD THEN CALL IN UPDATE
+        # Were on the ground
+        if self.single_jump is False:
+            if not self.right and not self.left:
+                self.animation.update_animation("Idle")
+            elif self.right or self.left:
+                self.animation.update_animation("Walking")
+        else:
+            # Were jumping
+            print(self.delta_y)
+            if self.delta_y < 0:
+                self.animation.update_animation("Jumping")
+            elif self.delta_y > 0:
+                self.animation.update_animation("Falling")
+
     # Use booleans for movement and update based on booleans in update method
     def update(self, players):
-        if self.delta_y < 0:
-            self.animation.update_animation("Jumping")
-        elif self.delta_y > 0:
-            self.animation.update_animation("Falling")
         locked_image, collision_image, collision_mask = self.animation.get_image(self.last_press)
         self.image = collision_image
         self.mask = collision_mask
@@ -172,7 +192,6 @@ class Player(pygame.sprite.Sprite):
                     self.rect.bottom = block.rect.top
                 elif self.delta_y < 0:
                     self.rect.bottom = block.rect.top
-                self.animation.update_animation("Idle")
                 # self.rect.top = block.rect.bottom
                 # Stop our vertical movement
                 self.delta_y = 0
@@ -191,6 +210,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.left = 0
 
         self.image = locked_image
+        self.choose_animation()
         self.animation.update_frame()
 
     def calc_gravity(self):
@@ -207,7 +227,7 @@ class Player(pygame.sprite.Sprite):
 
     def jump(self):
         """ Called when user hits 'jump' button. """
-        if not self.single_jump:
+        if self.single_jump is False:
             self.left = False
             self.right = False
             self.single_jump = True
