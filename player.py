@@ -6,7 +6,6 @@ import pygame
 
 import constants
 from animation import Animation
-from block import mask_from_surface
 
 
 class Player(pygame.sprite.Sprite):
@@ -15,16 +14,19 @@ class Player(pygame.sprite.Sprite):
     up = False
     down = False
     space = False
+    single_jump = False
     scale = 1.75
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, unique_id):
         super().__init__()
+        self.unique_id = unique_id
         # Animation setup
-        self.animation = Animation("Metabee/Metabee_SpriteSheet.png", "Metabee.txt", scale=1.5, animation_name="Idle")
+        self.animation = Animation("Metabee/Metabee_SpriteSheet.png", "Metabee/Metabee_Hitbox.png", "Metabee.txt",
+                                   scale=1.5, animation_name="Idle")
         self.animation.update_animation("Idle")
-        self.image = self.animation.get_image()
-        self.mask = mask_from_surface(self.image,
-                                      threshold=constants.ALPHA_THRESHOLD)  # pygame.mask.from_surface(self.image)
+        self.image, collision_image = self.animation.get_image()
+        self.mask = pygame.mask.from_surface(
+            collision_image)  # mask_from_surface(self.image,threshold=constants.ALPHA_THRESHOLD)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -44,8 +46,7 @@ class Player(pygame.sprite.Sprite):
         self.y_velocity = 0
 
     def draw(self, surface):
-        image = self.animation.get_image()
-        surface.blit(image, self.rect)
+        surface.blit(self.image, self.rect)
 
     def new_player(self, _dict):
         self.__dict__.update(_dict)
@@ -70,6 +71,8 @@ class Player(pygame.sprite.Sprite):
         self.space = keys[pygame.K_SPACE]
         if self.up:
             self.jump()
+        else:
+            self.single_jump = False
         if self.space:
             # self.pickle_sprite()
             self.apply_damage()
@@ -95,7 +98,8 @@ class Player(pygame.sprite.Sprite):
 
     # Use booleans for movement and update based on booleans in update method
     def update(self):
-        self.animation.update_frame()
+        locked_image, collision_image = self.animation.get_image()
+        self.image = collision_image
         if self.should_override:
             current_milli_sec = int(round(time.time() * 1000))
             if current_milli_sec >= self.time_override:
@@ -122,12 +126,12 @@ class Player(pygame.sprite.Sprite):
             # If we are moving right,
             # set our right side to the left side of the item we hit
             if self.right:
-                self.rect.x -= self.delta_x
-                # self.rect.right = block.rect.left
+                # self.rect.x -= self.delta_x
+                self.rect.right = block.rect.left
             elif self.left:
-                self.rect.x += self.delta_x
+                # self.rect.x += self.delta_x
                 # Otherwise if we are moving left, do the opposite.
-                # self.rect.left = block.rect.right
+                self.rect.left = block.rect.right
 
         # # Move up/down
         if self.should_override:
@@ -138,10 +142,11 @@ class Player(pygame.sprite.Sprite):
         # Check and see if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
                                                      pygame.sprite.collide_mask)
+
         for block in block_hit_list:
             # Reset our position based on the top/bottom of the object.
             if self.should_override:
-                if self.y_velocity > 0:
+                if self.y_velocity >= 0:
                     self.rect.bottom = block.rect.top
                 elif self.y_velocity < 0:
                     self.rect.top = block.rect.bottom
@@ -149,11 +154,11 @@ class Player(pygame.sprite.Sprite):
                 self.y_velocity = 0
 
             else:
-                if self.delta_y > 0:
+                if self.delta_y >= 0:
                     self.rect.bottom = block.rect.top
                 elif self.delta_y < 0:
                     self.rect.bottom = block.rect.top
-                    # self.rect.top = block.rect.bottom
+                # self.rect.top = block.rect.bottom
                 # Stop our vertical movement
                 self.delta_y = 0
 
@@ -162,6 +167,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.right = constants.SCREEN_WIDTH
         elif self.rect.left <= 0:
             self.rect.left = 0
+
+        self.image = collision_image
+        print(self.rect.bottom)
+        self.animation.update_frame()
 
     def calc_gravity(self):
         """ Calculate effect of gravity. """
@@ -177,15 +186,16 @@ class Player(pygame.sprite.Sprite):
 
     def jump(self):
         """ Called when user hits 'jump' button. """
+        if not self.single_jump:
+            self.single_jump = True
+            # move down a bit and see if there is a platform below us.
+            # Move down 2 pixels because it doesn't work well if we only move down
+            # 1 when working with a platform moving down.
+            self.rect.y += 2
+            platform_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
+                                                            pygame.sprite.collide_mask)
+            self.rect.y -= 2
 
-        # move down a bit and see if there is a platform below us.
-        # Move down 2 pixels because it doesn't work well if we only move down
-        # 1 when working with a platform moving down.
-        self.rect.y += 2
-        platform_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
-                                                        pygame.sprite.collide_mask)
-        self.rect.y -= 2
-
-        # If it is ok to jump, set our speed upwards
-        if len(platform_hit_list) > 0 or self.rect.bottom >= constants.SCREEN_HEIGHT:
-            self.delta_y = -11
+            # If it is ok to jump, set our speed upwards
+            if len(platform_hit_list) > 0 or self.rect.bottom >= constants.SCREEN_HEIGHT:
+                self.delta_y = -11

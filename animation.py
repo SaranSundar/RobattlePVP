@@ -52,9 +52,10 @@ def clock():
 
 
 class Animation:
-    def __init__(self, spritesheet, textfile, scale, animation_name):
+    def __init__(self, spritesheet, collision_spritesheet, textfile, scale, animation_name):
         self.sprite_dict = get_sprite_dict(textfile)
         self.sprites = get_sprites_from_dict(spritesheet, self.sprite_dict, scale)
+        self.collision_sprites = get_sprites_from_dict(collision_spritesheet, self.sprite_dict, scale)
         self.current_frame = 0
         # Both will be set in calculate animation speed
         self.animation_speed = None
@@ -68,7 +69,8 @@ class Animation:
         self.timeOfNextFrame = clock() + self.animation_speed
 
     def get_image(self):
-        return self.sprites[self.animation][self.current_frame]
+        return self.sprites[self.animation][self.current_frame], self.collision_sprites[self.animation][
+            self.current_frame]
 
     def update_frame(self):
         if clock() > self.timeOfNextFrame:
