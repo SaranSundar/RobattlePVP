@@ -81,15 +81,6 @@ class Player(pygame.sprite.Sprite):
         self.attack2 = keys[pygame.K_w]
         self.attack3 = keys[pygame.K_e]
         self.attack4 = keys[pygame.K_r]
-        if self.right:
-            self.last_press = "r"
-        elif self.left:
-            self.last_press = "l"
-        if self.up:
-            self.jump()
-        if self.space:
-            # self.pickle_sprite()
-            self.apply_damage()
         # print(self.up)
 
     def set_room(self, room):
@@ -139,6 +130,15 @@ class Player(pygame.sprite.Sprite):
 
     # Use booleans for movement and update based on booleans in update method
     def update(self, players):
+        if self.right:
+            self.last_press = "r"
+        elif self.left:
+            self.last_press = "l"
+        if self.up:
+            self.jump()
+        if self.space:
+            # self.pickle_sprite()
+            self.apply_damage()
         locked_image, collision_image, collision_mask = self.animation.get_image(self.last_press)
         self.image = collision_image
         self.mask = collision_mask
@@ -179,13 +179,19 @@ class Player(pygame.sprite.Sprite):
         if self.should_override:
             self.rect.y += self.y_velocity
         else:
+            if 1 < self.delta_y <= 2:
+                # print("delta", self.delta_y)
+                self.delta_y = 4
             self.rect.y += self.delta_y
 
         # Check and see if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
                                                      pygame.sprite.collide_mask)
+        # print("bot", self.rect.bottom)
+        # print("delta", self.delta_y)
 
         for block in block_hit_list:
+            # print("collision")
             # Reset our position based on the top/bottom of the object.
             if self.should_override:
                 if self.y_velocity > 0:
@@ -199,6 +205,7 @@ class Player(pygame.sprite.Sprite):
                 if self.delta_y > 0:
                     self.on_ground = True
                     self.rect.bottom = block.rect.top
+                    #print("top", block.rect.top)
                 elif self.delta_y < 0:
                     self.on_ground = True
                     self.rect.bottom = block.rect.top
@@ -219,7 +226,7 @@ class Player(pygame.sprite.Sprite):
         elif self.rect.left <= 0:
             self.rect.left = 0
 
-        self.image = collision_image
+        self.image = locked_image
         self.choose_animation()
         self.animation.update_frame()
 
@@ -240,10 +247,10 @@ class Player(pygame.sprite.Sprite):
         # move down a bit and see if there is a platform below us.
         # Move down 2 pixels because it doesn't work well if we only move down
         # 1 when working with a platform moving down.
-        self.rect.y += 2
+        self.rect.y += 4
         platform_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
                                                         pygame.sprite.collide_mask)
-        self.rect.y -= 2
+        self.rect.y -= 4
 
         # If it is ok to jump, set our speed upwards
         if len(platform_hit_list) > 0 or self.rect.bottom >= constants.SCREEN_HEIGHT:

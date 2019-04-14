@@ -34,9 +34,6 @@ Block
 Projectile-1
 14x8x1x80
 -------------
-Projectile-1
-14x8x1x80
--------------
 Projectile-2
 8x8x2x80
 -------------

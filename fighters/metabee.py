@@ -21,9 +21,9 @@ class Metabee(Player):
         #     self.animation.update_animation("Attack-4")
         elif self.on_ground:
             if not self.right and not self.left:
-                self.animation.update_animation("Walking")
-            elif self.right or self.left:
                 self.animation.update_animation("Idle")
+            elif self.right or self.left:
+                self.animation.update_animation("Walking")
         elif not self.on_ground:
             # Were jumping
             # print(self.delta_y)
