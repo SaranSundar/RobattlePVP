@@ -97,8 +97,9 @@ class Animation:
 
     def update_animation(self, animation_name):
         if self.animation != animation_name:
-            self.animation = animation_name
-            self.calculate_animation_speed()
+            if animation_name in self.sprites:
+                self.animation = animation_name
+                self.calculate_animation_speed()
 
     def reset_clock(self):
         self.timeOfNextFrame = clock()

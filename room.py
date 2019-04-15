@@ -8,7 +8,7 @@ from spritesheet_functions import SpriteSheet, get_path_name
 def create_blocks(filename: str):
     background_blocks = pygame.sprite.Group()
     collision_blocks = pygame.sprite.Group()
-    spritesheet = SpriteSheet("tiles_spritesheet_new.png")
+    spritesheet = SpriteSheet("Tiles_SpriteSheet.png")
     scale_block_size = 55
     spritesheet_block_size = 70  # 70 x 70
     file_path = get_path_name("maps", filename)

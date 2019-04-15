@@ -1,5 +1,6 @@
 import pygame
 
+from countdown import CountDown
 from fighters.metabee import Metabee
 from fighters.test_dummy import TestDummy
 from room import Room
@@ -17,6 +18,7 @@ class World:
         self.add_player(self.player2)
         self.rooms = [Room("level1.txt"), Room("level2.txt")]
         self.current_room = 0
+        self.countdown = CountDown()
         # Main Game Loop variables
         self.done = False
         self.fps = 60.0
@@ -45,15 +47,22 @@ class World:
                 self.done = True
 
     def update(self):
-        # --- Game Logic ---
-        self.player.set_room(self.rooms[self.current_room])
-        self.player.update(self.players)
-        # Remove these line for networking
-        self.player2.set_room(self.rooms[self.current_room])
-        self.player2.update(self.players)
+        # Will only update count down timer until it's done
+        if not self.countdown.should_countdown():
+            self.countdown.update()
+        else:
+            # --- Game Logic ---
+            self.player.set_room(self.rooms[self.current_room])
+            self.player.update(self.players)
+            # Remove these line for networking
+            self.player2.set_room(self.rooms[self.current_room])
+            self.player2.update(self.players)
 
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)
         self.rooms[self.current_room].draw(self.screen)
         for player in self.players:
             self.players[player].draw(self.screen)
+        # Draw count down timer, but will not update players
+        if not self.countdown.should_countdown():
+            self.countdown.draw(self.screen)
