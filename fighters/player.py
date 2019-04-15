@@ -21,13 +21,15 @@ class Player(pygame.sprite.Sprite):
     on_ground = False
     last_press = "r"
     scale = 1.75
+    attack_info = {}
 
     def __init__(self, x, y, unique_id, spritesheet, hitbox, animations):
         super().__init__()
         self.unique_id = unique_id
         # Animation setup
         self.animation = Animation(spritesheet, hitbox, animations, scale=1.5, animation_name="Idle")
-        self.animation.update_animation("Idle")
+        self.animation_name = "Idle"
+        self.animation.update_animation(self.animation_name)
         self.image, collision_image, self.mask = self.animation.get_image()
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -47,6 +49,21 @@ class Player(pygame.sprite.Sprite):
         self.should_override = False
         self.x_velocity = 0
         self.y_velocity = 0
+
+        # Attack Settings
+        self.set_attack_info()
+
+    # This method needs to be overridden in every fighters class
+    def set_attack_info(self):
+        # Angles should all be right facing and in radians, can be flipped when applying damage
+        self.create_attack("Attack-1", dmg=5)
+        self.create_attack("Attack-2", angle=math.pi / 4)
+        self.create_attack("Attack-3")
+        self.create_attack("Attack-4")
+
+    # Knock back time in ms
+    def create_attack(self, attack_name, angle=0.0, dmg=1, bs_kbk=5, kbk_time=500):
+        self.attack_info[attack_name] = {'angle': angle, 'dmg': dmg, 'bs_kbk': bs_kbk, 'kbk_time': kbk_time}
 
     def draw(self, surface):
         pygame.draw.rect(surface, pygame.Color("red"), (self.rect.x, self.rect.y - 12, self.rect.width, 10))
@@ -72,6 +89,7 @@ class Player(pygame.sprite.Sprite):
         print(copy)
 
     def process_keys(self, keys):
+        # Keys return 1 if true and 0 if false
         self.down = keys[pygame.K_DOWN]
         self.up = keys[pygame.K_UP]
         self.right = keys[pygame.K_RIGHT]
@@ -81,52 +99,53 @@ class Player(pygame.sprite.Sprite):
         self.attack2 = keys[pygame.K_w]
         self.attack3 = keys[pygame.K_e]
         self.attack4 = keys[pygame.K_r]
-        # print(self.up)
 
     def set_room(self, room):
         self.room = room
 
-    def apply_damage(self, dmg=1, base_knock_back=5, angle=(math.pi / 4)):
+    def apply_damage(self, enemy_attack_info):
+        angle = enemy_attack_info['angle']
+        dmg = enemy_attack_info['dmg']
+        bs_kbk = enemy_attack_info['bs_kbk']
+        kbk_time = enemy_attack_info['kbk_time']
         angle = -angle
         # Knock-back calculations applied after applying the damage taken
         self.damage_taken += dmg
+        print(self.damage_taken)
 
         # Calculate knock-back
-        knock_back = base_knock_back + dmg
+        knock_back = bs_kbk + dmg
 
         # Calculate velocity and time (milliseconds)
         self.x_velocity = knock_back * math.cos(angle)
         self.y_velocity = knock_back * math.sin(angle)
-        lockout_time = 500
         current_milli_sec = int(round(time.time() * 1000))
-        self.time_override = current_milli_sec + lockout_time
+        self.time_override = current_milli_sec + kbk_time
         self.should_override = True
 
-    def choose_animation(self):
-        # WRITE CODE TO DECIDE WHAT ANIMATION TO CHOOSE ALL IN THIS ONE METHOD THEN CALL IN UPDATE
-        # Were on the ground
-        # print(self.single_jump, self.right, self.left)
-        # single jump is true or false, but left and right are 1 or 0
+    def choose_animation(self, disable_secondary_attacks=True):
+        animation_name = "Idle"
         if self.attack1:
-            self.animation.update_animation("Attack-1")
+            animation_name = "Attack-1"
         elif self.attack2:
-            self.animation.update_animation("Attack-2")
-        elif self.attack3:
-            self.animation.update_animation("Attack-3")
-        elif self.attack4:
-            self.animation.update_animation("Attack-4")
+            animation_name = "Attack-2"
+        elif self.attack3 and not disable_secondary_attacks:
+            animation_name = "Attack-3"
+        elif self.attack4 and not disable_secondary_attacks:
+            animation_name = "Attack-4"
         elif self.on_ground:
             if not self.right and not self.left:
-                self.animation.update_animation("Idle")
+                animation_name = "Idle"
             elif self.right or self.left:
-                self.animation.update_animation("Walking")
+                animation_name = "Walking"
         elif not self.on_ground:
             # Were jumping
-            # print(self.delta_y)
             if self.delta_y < 0:
-                self.animation.update_animation("Jumping")
+                animation_name = "Jumping"
             elif self.delta_y > 2:
-                self.animation.update_animation("Falling")
+                animation_name = "Falling"
+        self.animation_name = animation_name
+        self.animation.update_animation(self.animation_name)
 
     # Use booleans for movement and update based on booleans in update method
     def update(self, players):
@@ -205,7 +224,7 @@ class Player(pygame.sprite.Sprite):
                 if self.delta_y > 0:
                     self.on_ground = True
                     self.rect.bottom = block.rect.top
-                    #print("top", block.rect.top)
+                    # print("top", block.rect.top)
                 elif self.delta_y < 0:
                     self.on_ground = True
                     self.rect.bottom = block.rect.top
@@ -213,18 +232,22 @@ class Player(pygame.sprite.Sprite):
                 # Stop our vertical movement
                 self.delta_y = 0
 
-        # Assume this is you attacking another player
-        for key in players:
-            if players[key] != self:
-                player_hit = pygame.sprite.collide_rect(self, players[key])
-                if player_hit:
-                    players[key].apply_damage()
-
         # Player bounds
         if self.rect.right >= constants.SCREEN_WIDTH:
             self.rect.right = constants.SCREEN_WIDTH
         elif self.rect.left <= 0:
             self.rect.left = 0
+
+        # Assume this is another player attacking you
+        for key in players:
+            enemy = players[key]  # type: Player
+            if enemy.unique_id != self.unique_id:
+                if "Attack" in enemy.animation_name:
+                    if pygame.sprite.collide_rect(self, enemy):
+                        enemy_attack_info = enemy.attack_info[enemy.animation_name]
+                        if enemy.last_press is "l":
+                            enemy_attack_info['angle'] = math.pi - enemy_attack_info['angle']
+                        self.apply_damage(enemy_attack_info)
 
         self.image = locked_image
         self.choose_animation()

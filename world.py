@@ -1,6 +1,7 @@
 import pygame
 
 from fighters.metabee import Metabee
+from fighters.test_dummy import TestDummy
 from room import Room
 
 BACKGROUND_COLOR = pygame.Color("cyan")
@@ -10,7 +11,7 @@ class World:
     def __init__(self):
         # Players group used to draw multiple players
         self.player = Metabee(90, 300, 1256)
-        self.player2 = Metabee(290, 300, 1257)
+        self.player2 = TestDummy(290, 300, 1257)
         self.players = {}
         self.add_player(self.player)
         self.add_player(self.player2)
@@ -37,6 +38,8 @@ class World:
     def process_events(self):
         keys = pygame.key.get_pressed()
         self.player.process_keys(keys)
+        # Remove these line for networking
+        self.player2.process_keys(keys)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.done = True
@@ -45,6 +48,9 @@ class World:
         # --- Game Logic ---
         self.player.set_room(self.rooms[self.current_room])
         self.player.update(self.players)
+        # Remove these line for networking
+        self.player2.set_room(self.rooms[self.current_room])
+        self.player2.update(self.players)
 
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)
