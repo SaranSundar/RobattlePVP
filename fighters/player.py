@@ -111,7 +111,6 @@ class Player(pygame.sprite.Sprite):
         angle = -angle
         # Knock-back calculations applied after applying the damage taken
         self.damage_taken += dmg
-        print(self.damage_taken)
 
         # Calculate knock-back
         knock_back = bs_kbk + dmg
@@ -137,7 +136,7 @@ class Player(pygame.sprite.Sprite):
             if not self.right and not self.left:
                 animation_name = "Idle"
             elif self.right or self.left:
-                animation_name = "Walking"
+                animation_name = "Running"
         elif not self.on_ground:
             # Were jumping
             if self.delta_y < 0:
@@ -155,9 +154,6 @@ class Player(pygame.sprite.Sprite):
             self.last_press = "l"
         if self.up:
             self.jump()
-        if self.space:
-            # self.pickle_sprite()
-            self.apply_damage()
         locked_image, collision_image, collision_mask = self.animation.get_image(self.last_press)
         self.image = collision_image
         self.mask = collision_mask
@@ -199,8 +195,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += self.y_velocity
         else:
             if 1 < self.delta_y <= 2:
-                # print("delta", self.delta_y)
-                self.delta_y = 4
+                self.delta_y = 6
             self.rect.y += self.delta_y
 
         # Check and see if we hit anything
@@ -270,10 +265,10 @@ class Player(pygame.sprite.Sprite):
         # move down a bit and see if there is a platform below us.
         # Move down 2 pixels because it doesn't work well if we only move down
         # 1 when working with a platform moving down.
-        self.rect.y += 4
+        self.rect.y += 6
         platform_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
                                                         pygame.sprite.collide_mask)
-        self.rect.y -= 4
+        self.rect.y -= 6
 
         # If it is ok to jump, set our speed upwards
         if len(platform_hit_list) > 0 or self.rect.bottom >= constants.SCREEN_HEIGHT:

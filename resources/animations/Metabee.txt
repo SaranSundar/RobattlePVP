@@ -28,7 +28,7 @@ Attack-3
 Attack-4
 39x55x6x80
 -------------
-Block
+Blocking
 31x50x1x80
 -------------
 Projectile-1
@@ -42,4 +42,7 @@ Projectile-3
 -------------
 Projectile-4
 21x24x3x80
+-------------
+Running
+45x51x6x120
 -------------
