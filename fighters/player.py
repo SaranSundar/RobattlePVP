@@ -50,6 +50,8 @@ class Player(pygame.sprite.Sprite):
         self.x_velocity = 0
         self.y_velocity = 0
 
+        #DISABLE PIXEL PERFECT COLLIOSJNS 
+
         # Attack Settings
         self.set_attack_info()
 
@@ -177,8 +179,7 @@ class Player(pygame.sprite.Sprite):
                 self.rect.x -= self.delta_x
 
         # Check and see if we hit anything
-        block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
-                                                     pygame.sprite.collide_mask)
+        block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False)
         for block in block_hit_list:
             # If we are moving right,
             # set our right side to the left side of the item we hit
@@ -194,13 +195,11 @@ class Player(pygame.sprite.Sprite):
         if self.should_override:
             self.rect.y += self.y_velocity
         else:
-            if 1 < self.delta_y <= 2:
-                self.delta_y = 6
+
             self.rect.y += self.delta_y
 
         # Check and see if we hit anything
-        block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
-                                                     pygame.sprite.collide_mask)
+        block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False)
         # print("bot", self.rect.bottom)
         # print("delta", self.delta_y)
 
@@ -265,10 +264,9 @@ class Player(pygame.sprite.Sprite):
         # move down a bit and see if there is a platform below us.
         # Move down 2 pixels because it doesn't work well if we only move down
         # 1 when working with a platform moving down.
-        self.rect.y += 6
-        platform_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False,
-                                                        pygame.sprite.collide_mask)
-        self.rect.y -= 6
+        self.rect.y += 2
+        platform_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False)
+        self.rect.y -= 2
 
         # If it is ok to jump, set our speed upwards
         if len(platform_hit_list) > 0 or self.rect.bottom >= constants.SCREEN_HEIGHT:
