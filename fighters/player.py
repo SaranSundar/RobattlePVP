@@ -23,11 +23,11 @@ class Player(pygame.sprite.Sprite):
     scale = 1.75
     attack_info = {}
 
-    def __init__(self, x, y, unique_id, spritesheet, hitbox, animations):
+    def __init__(self, x, y, unique_id, spritesheet, hitbox, animations, scale=1.5):
         super().__init__()
         self.unique_id = unique_id
         # Animation setup
-        self.animation = Animation(spritesheet, hitbox, animations, scale=1.5, animation_name="Idle")
+        self.animation = Animation(spritesheet, hitbox, animations, scale, animation_name="Idle")
         self.animation_name = "Idle"
         self.animation.update_animation(self.animation_name)
         self.image, collision_image, self.mask = self.animation.get_image()
@@ -50,7 +50,7 @@ class Player(pygame.sprite.Sprite):
         self.x_velocity = 0
         self.y_velocity = 0
 
-        #DISABLE PIXEL PERFECT COLLIOSJNS 
+        # DISABLE PIXEL PERFECT COLLIOSJNS
 
         # Attack Settings
         self.set_attack_info()
