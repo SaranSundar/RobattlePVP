@@ -258,7 +258,7 @@ class Player(pygame.sprite.Sprite):
                             enemy_attack_info['angle'] = math.pi - enemy_attack_info['angle']
                         self.apply_damage(enemy_attack_info)
 
-        self.image = locked_image
+        self.image = collision_image
         self.choose_animation()
         self.animation.update_frame()
 
