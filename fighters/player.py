@@ -26,6 +26,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, unique_id, spritesheet, hitbox, animations, scale=1.5):
         super().__init__()
         self.unique_id = unique_id
+        self.name = spritesheet.split("/")[0]
         # Animation setup
         self.animation = Animation(spritesheet, hitbox, animations, scale, animation_name="Idle")
         self.animation_name = "Idle"
@@ -67,12 +68,26 @@ class Player(pygame.sprite.Sprite):
     def create_attack(self, attack_name, angle=0.0, dmg=1, bs_kbk=5, kbk_time=500):
         self.attack_info[attack_name] = {'angle': angle, 'dmg': dmg, 'bs_kbk': bs_kbk, 'kbk_time': kbk_time}
 
-    def draw(self, surface):
+    def draw(self, surface, font, position=(1, 2)):  # Player order, Total players
+        # DRAWS PLAYERS HEALTH BAR
         pygame.draw.rect(surface, pygame.Color("red"), (self.rect.x, self.rect.y - 12, self.rect.width, 10))
         health = int(
             max(min((self.max_hp - self.damage_taken) / float(self.max_hp) * self.rect.width, self.rect.width), 0))
         if health != 0:
             pygame.draw.rect(surface, pygame.Color("green"), (self.rect.x, self.rect.y - 12, health, 10))
+        # DRAWS ICON AT BOTTOM FOR STATUS
+        icon = self.animation.sprites["Icon"][0][0]
+        icon = pygame.transform.scale(icon, (65, 65))
+        padding = constants.SCREEN_WIDTH / 5
+        box_x = (constants.SCREEN_WIDTH / position[1]) * position[0] + padding
+        box_y = constants.SCREEN_HEIGHT - icon.get_height() - 25
+        # DRAWS NAME AND DAMAGE
+        name_text = font.render(self.name, False, (0, 0, 0))
+        surface.blit(name_text, (box_x, box_y + icon.get_height()))
+        damage_text = font.render(str(self.damage_taken) + "%", False, (0, 0, 0))
+        surface.blit(damage_text, (box_x + icon.get_width() + 10, box_y + icon.get_height() / 2))
+        # DRAWS PLAYER
+        surface.blit(icon, (box_x, box_y, icon.get_width(), icon.get_height()))
         surface.blit(self.image, self.rect)
 
     def new_player(self, _dict):

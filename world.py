@@ -1,7 +1,6 @@
 import pygame
 
 from countdown import CountDown
-from fighters.metabee import Metabee
 from fighters.sumilidon import Sumilidon
 from fighters.test_dummy import TestDummy
 from room import Room
@@ -25,6 +24,9 @@ class World:
         self.fps = 60.0
         self.clock = pygame.time.Clock()
         self.screen = None
+        pygame.font.init()  # you have to call this at the start,
+        # if you want to use this module.
+        self.game_font = pygame.font.SysFont('times', 20)
 
     def add_player(self, player):
         self.players[player.unique_id] = player
@@ -59,11 +61,19 @@ class World:
             self.player2.set_room(self.rooms[self.current_room])
             self.player2.update(self.players)
 
+    def draw_countdown(self):
+        if not self.countdown.should_countdown():
+            self.countdown.draw(self.screen)
+
+    def draw_players(self):
+        pos = 0
+        for player in self.players:
+            position = (pos, len(self.players))
+            self.players[player].draw(self.screen, self.game_font, position)
+            pos += 1
+
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)
         self.rooms[self.current_room].draw(self.screen)
-        for player in self.players:
-            self.players[player].draw(self.screen)
-        # Draw count down timer, but will not update players
-        if not self.countdown.should_countdown():
-            self.countdown.draw(self.screen)
+        self.draw_players()
+        self.draw_countdown()

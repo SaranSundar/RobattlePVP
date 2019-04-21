@@ -5,7 +5,7 @@ Idle
 27x52x6x80
 -------------
 Running
-38x51x8x80
+38x52x8x80
 -------------
 Jumping
 39x56x1x80
