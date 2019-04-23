@@ -5,7 +5,7 @@ import time
 import pygame
 
 import constants
-from animation import Animation
+from animation import Animation, get_collision_image
 
 
 class Player(pygame.sprite.Sprite):
@@ -51,7 +51,7 @@ class Player(pygame.sprite.Sprite):
         self.x_velocity = 0
         self.y_velocity = 0
 
-        # DISABLE PIXEL PERFECT COLLIOSJNS
+        get_collision_image(self.animation.sprites["Idle"][0][0])
 
         # Attack Settings
         self.set_attack_info()
@@ -169,11 +169,20 @@ class Player(pygame.sprite.Sprite):
             self.last_press = "r"
         elif self.left:
             self.last_press = "l"
+        locked_image, collision_image, collision_mask = self.animation.get_image(self.last_press)
+        black_image, x_off, y_off, contrast_image = get_collision_image(collision_image)
+        self.image = black_image
+        curr_x = self.rect.x
+        curr_y = self.rect.y
+        curr_w = self.rect.width
+        curr_h = self.rect.height
+        # self.rect.x += x_off
+        # self.rect.y += y_off
+        self.rect.width = black_image.get_width()
+        self.rect.height = black_image.get_height()
+        self.mask = collision_mask
         if self.up:
             self.jump()
-        locked_image, collision_image, collision_mask = self.animation.get_image(self.last_press)
-        self.image = collision_image
-        self.mask = collision_mask
         if self.should_override:
             current_milli_sec = int(round(time.time() * 1000))
             if current_milli_sec >= self.time_override:
@@ -195,6 +204,7 @@ class Player(pygame.sprite.Sprite):
 
         # Check and see if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False)
+        shift_lr = len(block_hit_list) > 0
         for block in block_hit_list:
             # If we are moving right,
             # set our right side to the left side of the item we hit
@@ -215,6 +225,7 @@ class Player(pygame.sprite.Sprite):
 
         # Check and see if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, self.room.collision_blocks, False)
+        shift_ud = len(block_hit_list) > 0
         # print("bot", self.rect.bottom)
         # print("delta", self.delta_y)
 
@@ -258,7 +269,19 @@ class Player(pygame.sprite.Sprite):
                             enemy_attack_info['angle'] = math.pi - enemy_attack_info['angle']
                         self.apply_damage(enemy_attack_info)
 
-        self.image = collision_image
+        # self.image = collision_image
+        # self.rect.x = curr_x
+        # self.rect.y = curr_y
+        # if not shift_lr:
+        #     self.rect.x -= x_off
+        # if not shift_ud:
+        #     self.rect.y -= y_off
+        # if not shift_lr and not shift_ud:
+        #     self.rect.x -= x_off
+        #     self.rect.y -= y_off
+        self.rect.width = curr_w
+        self.rect.height = curr_h
+        self.image = locked_image
         self.choose_animation()
         self.animation.update_frame()
 

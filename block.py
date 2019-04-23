@@ -1,6 +1,6 @@
 import pygame
 
-import constants
+from animation import get_collision_image
 
 
 def mask_from_surface(surface, threshold=127):
@@ -33,5 +33,7 @@ class Block(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.mask = mask_from_surface(self.image,
-                                      threshold=constants.ALPHA_THRESHOLD)  # pygame.mask.from_surface(self.image)
+        self.collision_image = get_collision_image(image)[0]
+        # self.rect = self.collision_image.get_rect()
+        self.mask = pygame.mask.from_surface(self.collision_image)  # mask_from_surface(self.image,
+        # threshold=constants.ALPHA_THRESHOLD)  # pygame.mask.from_surface(self.image)

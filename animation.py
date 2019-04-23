@@ -39,6 +39,45 @@ def get_row_animations(spritesheet, y, width, height, length, scale):
     return (row, flip_row), (masks, flip_masks)
 
 
+def get_collision_image(image):
+    orig_arr = pygame.PixelArray(image)
+    pxarray = orig_arr.extract(0xFFFFFF)
+    black = 4278190080
+    cols = len(pxarray)  # 51
+    rows = len(pxarray[0])  # 82
+    max_black_count_width = 0
+    max_black_count_height = 0
+    count_y = False
+    y_offset = 0
+    total_x_offset = 0
+    for row in pxarray:
+        black_count_width = 0
+        black_count_height = 0
+        x_offset = 0
+        count_x = False
+        for col in row:
+            if col == black:
+                count_x = True
+                count_y = True
+                black_count_width += 1
+                black_count_height = 1
+            else:
+                if not count_x:
+                    x_offset += 1
+        if count_x:
+            total_x_offset = x_offset
+        if not count_y:
+            y_offset += 1
+        max_black_count_height += black_count_height
+        if black_count_width > max_black_count_width:
+            max_black_count_width = black_count_width
+    # somehow width and height are mixed for some unknown reason so flip them
+    collision_image = pygame.Surface([max_black_count_height, max_black_count_width], pygame.SRCALPHA)
+    collision_image.fill((0, 0, 0))
+    # return collision_image, x_offset, y_offset
+    return collision_image, total_x_offset, y_offset, pxarray.make_surface()
+
+
 def get_sprite_dict(filename):
     textfile_path = get_path_name("animations", filename)
     sprite_dict = collections.OrderedDict()

@@ -1,9 +1,6 @@
 import pygame
 
-from countdown import CountDown
 from fighters.metabee import Metabee
-from fighters.sumilidon import Sumilidon
-from fighters.test_dummy import TestDummy
 from room import Room
 
 BACKGROUND_COLOR = pygame.Color("cyan")
@@ -13,13 +10,13 @@ class World:
     def __init__(self):
         # Players group used to draw multiple players
         self.player = Metabee(90, 200, 1256)
-        self.player2 = TestDummy(290, 300, 1257)
+        # self.player2 = TestDummy(290, 300, 1257)
         self.players = {}
         self.add_player(self.player)
-        self.add_player(self.player2)
+        # self.add_player(self.player2)
         self.rooms = [Room("level1.txt"), Room("level2.txt")]
         self.current_room = 0
-        self.countdown = CountDown()
+        # self.countdown = CountDown()
         # Main Game Loop variables
         self.done = False
         self.fps = 60.0
@@ -45,22 +42,22 @@ class World:
         keys = pygame.key.get_pressed()
         self.player.process_keys(keys)
         # Remove these line for networking
-        self.player2.process_keys(keys)
+        # self.player2.process_keys(keys)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.done = True
 
     def update(self):
         # Will only update count down timer until it's done
-        if not self.countdown.should_countdown():
-            self.countdown.update()
-        else:
-            # --- Game Logic ---
-            self.player.set_room(self.rooms[self.current_room])
-            self.player.update(self.players)
-            # Remove these line for networking
-            self.player2.set_room(self.rooms[self.current_room])
-            self.player2.update(self.players)
+        # if not self.countdown.should_countdown():
+        #    self.countdown.update()
+        # else:
+        # --- Game Logic ---
+        self.player.set_room(self.rooms[self.current_room])
+        self.player.update(self.players)
+        # Remove these line for networking
+        # self.player2.set_room(self.rooms[self.current_room])
+        # self.player2.update(self.players)
 
     def draw_countdown(self):
         if not self.countdown.should_countdown():
@@ -77,4 +74,4 @@ class World:
         self.screen.fill(BACKGROUND_COLOR)
         self.rooms[self.current_room].draw(self.screen)
         self.draw_players()
-        self.draw_countdown()
+        # self.draw_countdown()
