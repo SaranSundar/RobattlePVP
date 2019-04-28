@@ -123,6 +123,10 @@ class Animation:
         self.current_frame = 0
         self.timeOfNextFrame = clock() + self.animation_speed
 
+    def get_attack_image(self, animation_name, last_press):
+        self.is_left = last_press is "l"
+        return self.sprites[animation_name][self.is_left][0]
+
     def get_image(self, last_press="r"):
         self.is_left = last_press is "l"
         return self.sprites[self.animation][self.is_left][self.current_frame], \

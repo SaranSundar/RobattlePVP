@@ -5,7 +5,8 @@ import time
 import pygame
 
 import constants
-from animation import Animation, get_collision_image
+from animation import Animation, get_collision_image, clock
+from fighters.projectile import Projectile
 
 
 class Player(pygame.sprite.Sprite):
@@ -19,6 +20,8 @@ class Player(pygame.sprite.Sprite):
     attack3 = False
     attack4 = False
     on_ground = False
+    attack_interval = 1000
+    attack_time = clock()
     last_press = "r"
     scale = 1.75
     attack_info = {}
@@ -51,7 +54,7 @@ class Player(pygame.sprite.Sprite):
         self.x_velocity = 0
         self.y_velocity = 0
 
-        get_collision_image(self.animation.sprites["Idle"][0][0])
+        self.projectiles = []
 
         # Attack Settings
         self.set_attack_info()
@@ -89,6 +92,20 @@ class Player(pygame.sprite.Sprite):
         # DRAWS PLAYER
         surface.blit(icon, (box_x, box_y, icon.get_width(), icon.get_height()))
         surface.blit(self.image, self.rect)
+
+        self.draw_projectiles(surface)
+
+    def draw_projectiles(self, surface):
+        for projectile in self.projectiles:
+            projectile.draw(surface)
+
+    def update_projectiles(self):
+        for projectile in self.projectiles:
+            projectile.update()
+            if projectile.rect.x >= constants.SCREEN_WIDTH:
+                self.projectiles.remove(projectile)
+            elif projectile.rect.x + projectile.rect.width <= 0:
+                self.projectiles.remove(projectile)
 
     def new_player(self, _dict):
         self.__dict__.update(_dict)
@@ -139,12 +156,22 @@ class Player(pygame.sprite.Sprite):
         self.time_override = current_milli_sec + kbk_time
         self.should_override = True
 
+    def add_projectile(self, attack_name, attack_interval):
+        if clock() > self.attack_time:
+            self.attack_interval = attack_interval
+            self.attack_time = clock() + self.attack_interval
+            self.projectiles.append(Projectile(self.animation.get_attack_image(attack_name, self.last_press),
+                                               self.rect.x, self.rect.y + self.rect.height / 2, 7, 1,
+                                               self.last_press))
+
     def choose_animation(self, disable_secondary_attacks=True):
         animation_name = "Idle"
         if self.attack1:
             animation_name = "Attack-1"
+            self.add_projectile("Projectile-1", 500)
         elif self.attack2:
             animation_name = "Attack-2"
+            self.add_projectile("Projectile-2", 200)
         elif self.attack3 and not disable_secondary_attacks:
             animation_name = "Attack-3"
         elif self.attack4 and not disable_secondary_attacks:
@@ -284,6 +311,8 @@ class Player(pygame.sprite.Sprite):
         self.image = locked_image
         self.choose_animation()
         self.animation.update_frame()
+
+        self.update_projectiles()
 
     def calc_gravity(self):
         """ Calculate effect of gravity. """

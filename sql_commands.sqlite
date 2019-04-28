@@ -1,0 +1,141 @@
+
+create table ARENA (
+    ARENA_NAME  varchar(80),
+    TYPE        varchar(80),
+    primary key (ARENA_NAME)
+) without rowid;
+
+create table ARENA_RULES (
+    ARENA_NAME_FK   varchar(80),
+    ARENA_RULES     varchar(500),
+    primary key (ARENA_NAME_FK, ARENA_RULES),
+    foreign key (ARENA_NAME_FK) references ARENA(ARENA_NAME)
+) without rowid;
+
+create table ATTENDEE(
+    FIRST_NAME      varchar(50),
+    LAST_NAME       varchar(50),
+    GAME_ID_FK      integer,
+    TICKET_NUMBER   integer,
+    primary key (TICKET_NUMBER),
+    foreign key (GAME_ID_FK) references GAME(GAME_ID)
+) without rowid;
+
+create table BATTLE(
+    CONTENDER_ONE_ROBOT_LICENSE_FK  integer,
+    CONTENDER_TWO_ROBOT_LICENSE_FK  integer,
+    foreign key (CONTENDER_ONE_ROBOT_LICENSE_FK) references CONTESTANT(ROBOT_LICENSE),
+    foreign key (CONTENDER_TWO_ROBOT_LICENSE_FK) references CONTESTANT(ROBOT_LICENSE),
+    primary key (CONTENDER_ONE_ROBOT_LICENSE_FK, CONTENDER_TWO_ROBOT_LICENSE_FK)
+) without rowid;
+
+create table CHIEF_ORGANIZER(
+    AUTHORIZATION   integer,
+    EMPLOYEE_ID     integer,
+    FIRST_NAME      varchar(50),
+    LAST_NAME       varchar(50),
+    SALARY          integer check (SALARY > 0),
+    primary key (EMPLOYEE_ID)
+) without rowid;
+
+create table CONCESSIONS_VENDOR(
+    AUTHORIZATION       integer,
+    EMPLOYEE_ID         integer,
+    FIRST_NAME          varchar(50),
+    LAST_NAME           varchar(50),
+    SALARY              integer check (SALARY > 0),
+    TICKET_NUMBER_FK    integer,
+    primary key (EMPLOYEE_ID),
+    foreign key (TICKET_NUMBER_FK) references ATTENDEE(TICKET_NUMBER)
+) without rowid;
+
+create table CONTESTANT(
+    DEFENSE                 integer check (DEFENSE > 0),
+    FIRST_NAME              varchar(50),
+    HEALTH                  integer check (HEALTH > 0),
+    LAST_NAME               varchar(50),
+    LOSSES                  integer check (LOSSES > 0),
+    GAMES_PLAYED            integer check (GAMES_PLAYED > 0),
+    GAME_ID_FK              integer,
+    MODEL                   varchar(80),
+    NORMAL_ATTACK           varchar(80),
+    PRIMARY_ATK_DAMAGE      integer check (PRIMARY_ATK_DAMAGE > 0),
+    PRIMARY_ATK_KNOCKBACK   integer check (PRIMARY_ATK_KNOCKBACK > 0),
+    PRIMARY_ATK_ANGLE       integer,
+    ROBOT_LICENSE           integer,
+    ROBOT_NAME              varchar(80),
+    SECONDARY_ATK_DAMAGE    integer check (SECONDARY_ATK_DAMAGE > 0),
+    SECONDARY_ATK_KNOCKBACK integer check (SECONDARY_ATK_KNOCKBACK > 0),
+    SECONDARY_ATK_ANGLE     integer,
+    SERIAL_NUMBER           integer unique,
+    SPECIAL_ATTACK          varchar(80),
+    SPEED                   integer check (SPEED > 0),
+    TITLE                   varchar(20),
+    WEIGHT                  integer check (WEIGHT > 0),
+    WINS                    integer check (WINS > 0),
+    primary key (ROBOT_LICENSE),
+    foreign key (GAME_ID_FK) references GAME(GAME_ID)
+) without rowid;
+
+create table GAME(
+    ARENA_NAME_FK       varchar(80),
+    END_TIME            datetime,
+    GAME_ID             integer,
+    PARTICIPATION_COUNT integer,
+    REFEREE_FK          integer,
+    START_TIME          datetime,
+    TOURNAMENT_NAME_FK  varchar(80),
+    primary key (GAME_ID),
+    foreign key (TOURNAMENT_NAME_FK) references TOURNAMENT(TOURNAMENT_NAME),
+    foreign key (ARENA_NAME_FK) references ARENA(ARENA_NAME)
+) without rowid;
+
+create table RECEPTIONIST(
+    AUTHORIZATION       integer,
+    EMPLOYEE_ID         integer,
+    FIRST_NAME          varchar(50),
+    LAST_NAME           varchar(50),
+    ROBOT_LICENSE_FK    integer,
+    SALARY              integer check (SALARY > 0),
+    primary key (EMPLOYEE_ID),
+    foreign key (ROBOT_LICENSE_FK) references CONTESTANT(ROBOT_LICENSE)
+) without rowid;
+
+create table REFEREE(
+    AUTHORIZATION   integer,
+    EMPLOYEE_ID     integer,
+    FIRST_NAME      varchar(50),
+    LAST_NAME       varchar(50),
+    SALARY          integer check (SALARY > 0),
+    primary key (EMPLOYEE_ID)
+) without rowid;
+
+create table TICKET_VENDOR(
+    AUTHORIZATION       integer,
+    EMPLOYEE_ID         integer,
+    FIRST_NAME          varchar(50),
+    LAST_NAME           varchar(50),
+    SALARY              integer check (SALARY > 0),
+    TICKET_NUMBER_FK    integer,
+    primary key (EMPLOYEE_ID),
+    foreign key (TICKET_NUMBER_FK) references ATTENDEE(TICKET_NUMBER)
+) without rowid;
+
+create table TOURNAMENT(
+    CHIEF_ORGANIZER_FK  integer,
+    END_DATE            datetime,
+    FORMAT              varchar(500),
+    MATCH_COUNT         integer check (MATCH_COUNT > 0),
+    RULES               varchar(500),
+    START_DATE          datetime,
+    TOURNAMENT_NAME     varchar(80),
+    primary key (TOURNAMENT_NAME),
+    foreign key (CHIEF_ORGANIZER_FK) references CHIEF_ORGANIZER(EMPLOYEE_ID)
+) without rowid;
+
+create table TOURNAMENT_PRIZES(
+    TOURNAMENT_NAME_FK varchar(80),
+    TOURNAMENT_PRIZE varchar(500),
+    primary key (TOURNAMENT_NAME_FK, TOURNAMENT_PRIZE),
+    foreign key (TOURNAMENT_NAME_FK) references TOURNAMENT(TOURNAMENT_NAME)
+) without rowid;
