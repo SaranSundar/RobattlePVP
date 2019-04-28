@@ -164,7 +164,7 @@ class Player(pygame.sprite.Sprite):
                                                self.rect.x, self.rect.y + self.rect.height / 2, 7, 1,
                                                self.last_press))
 
-    def choose_animation(self, disable_secondary_attacks=True):
+    def choose_animation(self, disable_secondary_attacks=False):
         animation_name = "Idle"
         if self.attack1:
             animation_name = "Attack-1"
@@ -174,8 +174,10 @@ class Player(pygame.sprite.Sprite):
             self.add_projectile("Projectile-2", 200)
         elif self.attack3 and not disable_secondary_attacks:
             animation_name = "Attack-3"
+            self.add_projectile("Projectile-3", 350)
         elif self.attack4 and not disable_secondary_attacks:
             animation_name = "Attack-4"
+            self.add_projectile("Projectile-4", 1000)
         elif self.on_ground:
             if not self.right and not self.left:
                 animation_name = "Idle"
