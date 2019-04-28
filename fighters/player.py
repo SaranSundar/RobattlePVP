@@ -26,7 +26,7 @@ class Player(pygame.sprite.Sprite):
     scale = 1.75
     attack_info = {}
 
-    def __init__(self, x, y, unique_id, spritesheet, hitbox, animations, scale=1.5):
+    def __init__(self, x, y, unique_id, spritesheet, hitbox, animations, scale=1.5, disable_second=False):
         super().__init__()
         self.unique_id = unique_id
         self.name = spritesheet.split("/")[0]
@@ -53,6 +53,7 @@ class Player(pygame.sprite.Sprite):
         self.should_override = False
         self.x_velocity = 0
         self.y_velocity = 0
+        self.disable_second = disable_second
 
         self.projectiles = []
 
@@ -164,7 +165,7 @@ class Player(pygame.sprite.Sprite):
                                                self.rect.x, self.rect.y + self.rect.height / 2, 7, 1,
                                                self.last_press))
 
-    def choose_animation(self, disable_secondary_attacks=False):
+    def choose_animation(self):
         animation_name = "Idle"
         if self.attack1:
             animation_name = "Attack-1"
@@ -172,10 +173,10 @@ class Player(pygame.sprite.Sprite):
         elif self.attack2:
             animation_name = "Attack-2"
             self.add_projectile("Projectile-2", 200)
-        elif self.attack3 and not disable_secondary_attacks:
+        elif self.attack3 and not self.disable_second:
             animation_name = "Attack-3"
             self.add_projectile("Projectile-3", 350)
-        elif self.attack4 and not disable_secondary_attacks:
+        elif self.attack4 and not self.disable_second:
             animation_name = "Attack-4"
             self.add_projectile("Projectile-4", 1000)
         elif self.on_ground:
