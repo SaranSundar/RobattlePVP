@@ -10,24 +10,11 @@ from fighters.projectile import Projectile
 
 
 class Player(pygame.sprite.Sprite):
-    right = False
-    left = False
-    up = False
-    down = False
-    space = False
-    attack1 = False
-    attack2 = False
-    attack3 = False
-    attack4 = False
-    on_ground = False
-    attack_interval = 1000
-    attack_time = clock()
-    last_press = "r"
-    scale = 1.75
-    attack_info = {}
 
-    def __init__(self, x, y, unique_id, spritesheet, hitbox, animations, scale=1.5, disable_second=False):
+    def __init__(self, x, y, unique_id, spritesheet, hitbox, animations, keys, scale=1.5, disable_second=False):
         super().__init__()
+        self.set_init_variables()
+        self.scale = scale
         self.unique_id = unique_id
         self.name = spritesheet.split("/")[0]
         # Animation setup
@@ -38,6 +25,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.keys = keys
 
         # Set speed vector of player
         self.delta_x = 5
@@ -58,7 +46,24 @@ class Player(pygame.sprite.Sprite):
         self.projectiles = []
 
         # Attack Settings
+        self.attack_info = {}
         self.set_attack_info()
+
+    def set_init_variables(self):
+        self.right = False
+        self.left = False
+        self.up = False
+        self.down = False
+        self.space = False
+        self.attack1 = False
+        self.attack2 = False
+        self.attack3 = False
+        self.attack4 = False
+        self.on_ground = False
+        self.attack_interval = 1000
+        self.attack_time = clock()
+        self.last_press = "r"
+        self.scale = 1.75
 
     # This method needs to be overridden in every fighters class
     def set_attack_info(self):
@@ -85,16 +90,16 @@ class Player(pygame.sprite.Sprite):
         padding = constants.SCREEN_WIDTH / 5
         box_x = (constants.SCREEN_WIDTH / position[1]) * position[0] + padding
         box_y = constants.SCREEN_HEIGHT - icon.get_height() - 25
-        # DRAWS NAME AND DAMAGE
-        name_text = font.render(self.name, False, (0, 0, 0))
-        surface.blit(name_text, (box_x, box_y + icon.get_height()))
-        damage_text = font.render(str(self.damage_taken) + "%", False, (0, 0, 0))
-        surface.blit(damage_text, (box_x + icon.get_width() + 10, box_y + icon.get_height() / 2))
         # DRAWS PLAYER
         surface.blit(icon, (box_x, box_y, icon.get_width(), icon.get_height()))
         surface.blit(self.image, self.rect)
 
         self.draw_projectiles(surface)
+        # DRAWS NAME AND DAMAGE
+        name_text = font.render(self.name, False, (0, 0, 0))
+        surface.blit(name_text, (box_x, box_y + icon.get_height()))
+        damage_text = font.render(str(self.damage_taken) + "%", False, (0, 0, 0))
+        surface.blit(damage_text, (box_x + icon.get_width() + 10, box_y + icon.get_height() / 2))
 
     def draw_projectiles(self, surface):
         for projectile in self.projectiles:
@@ -106,6 +111,8 @@ class Player(pygame.sprite.Sprite):
             if projectile.rect.x >= constants.SCREEN_WIDTH:
                 self.projectiles.remove(projectile)
             elif projectile.rect.x + projectile.rect.width <= 0:
+                self.projectiles.remove(projectile)
+            elif projectile.collided:
                 self.projectiles.remove(projectile)
 
     def new_player(self, _dict):
@@ -125,21 +132,20 @@ class Player(pygame.sprite.Sprite):
 
     def process_keys(self, keys):
         # Keys return 1 if true and 0 if false
-        self.down = keys[pygame.K_DOWN]
-        self.up = keys[pygame.K_UP]
-        self.right = keys[pygame.K_RIGHT]
-        self.left = keys[pygame.K_LEFT]
-        self.space = keys[pygame.K_SPACE]
-        self.attack1 = keys[pygame.K_q]
-        self.attack2 = keys[pygame.K_w]
-        self.attack3 = keys[pygame.K_e]
-        self.attack4 = keys[pygame.K_r]
+        self.down = keys[self.keys['down']]
+        self.up = keys[self.keys['up']]
+        self.right = keys[self.keys['right']]
+        self.left = keys[self.keys['left']]
+        self.space = keys[self.keys['space']]
+        self.attack1 = keys[self.keys['attack1']]
+        self.attack2 = keys[self.keys['attack2']]
+        self.attack3 = keys[self.keys['attack3']]
+        self.attack4 = keys[self.keys['attack4']]
 
     def set_room(self, room):
         self.room = room
 
-    def apply_damage(self, enemy_attack_info):
-        angle = enemy_attack_info['angle']
+    def apply_damage(self, enemy_attack_info, angle):
         dmg = enemy_attack_info['dmg']
         bs_kbk = enemy_attack_info['bs_kbk']
         kbk_time = enemy_attack_info['kbk_time']
@@ -157,28 +163,30 @@ class Player(pygame.sprite.Sprite):
         self.time_override = current_milli_sec + kbk_time
         self.should_override = True
 
-    def add_projectile(self, attack_name, attack_interval):
+    def add_projectile(self, attack_name, attack_interval, animation_name):
         if clock() > self.attack_time:
             self.attack_interval = attack_interval
             self.attack_time = clock() + self.attack_interval
             self.projectiles.append(Projectile(self.animation.get_attack_image(attack_name, self.last_press),
                                                self.rect.x, self.rect.y + self.rect.height / 2, 7, 1,
-                                               self.last_press))
+                                               self.last_press, animation_name))
+            return True
+        return False
 
     def choose_animation(self):
         animation_name = "Idle"
         if self.attack1:
             animation_name = "Attack-1"
-            self.add_projectile("Projectile-1", 500)
+            self.add_projectile("Projectile-1", 500, animation_name)
         elif self.attack2:
             animation_name = "Attack-2"
-            self.add_projectile("Projectile-2", 200)
+            self.add_projectile("Projectile-2", 200, animation_name)
         elif self.attack3 and not self.disable_second:
             animation_name = "Attack-3"
-            self.add_projectile("Projectile-3", 350)
+            self.add_projectile("Projectile-3", 350, animation_name)
         elif self.attack4 and not self.disable_second:
             animation_name = "Attack-4"
-            self.add_projectile("Projectile-4", 1000)
+            self.add_projectile("Projectile-4", 1000, animation_name)
         elif self.on_ground:
             if not self.right and not self.left:
                 animation_name = "Idle"
@@ -295,9 +303,19 @@ class Player(pygame.sprite.Sprite):
                 if "Attack" in enemy.animation_name:
                     if pygame.sprite.collide_rect(self, enemy):
                         enemy_attack_info = enemy.attack_info[enemy.animation_name]
+                        angle = enemy_attack_info['angle']
                         if enemy.last_press is "l":
-                            enemy_attack_info['angle'] = math.pi - enemy_attack_info['angle']
-                        self.apply_damage(enemy_attack_info)
+                            angle = math.pi - angle
+                        self.apply_damage(enemy_attack_info, angle)
+                for projectile in enemy.projectiles:
+                    if pygame.sprite.collide_rect(self, projectile):
+                        proj_info = enemy.attack_info[projectile.animation_name]
+                        angle = proj_info['angle']
+                        if projectile.velocity < 0:
+                            angle = math.pi - angle
+                        proj_info['dmg'] = projectile.dmg
+                        self.apply_damage(proj_info, angle)
+                        projectile.collided = True
 
         # self.image = collision_image
         # self.rect.x = curr_x
