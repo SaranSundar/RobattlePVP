@@ -12,7 +12,7 @@ class Sumilidon(Player):
 
     def set_attack_info(self):
         # Angles should all be right facing and in radians, can be flipped when applying damage
-        self.create_attack("Attack-1", dmg=5, angle=math.pi / 4)
+        self.create_attack("Attack-1", dmg=50, angle=math.pi / 4)
         self.create_attack("Attack-2", angle=math.pi / 4)
         self.create_attack("Attack-3")
         self.create_attack("Attack-4")
@@ -23,11 +23,11 @@ class Sumilidon(Player):
             self.attack_time = clock() + self.attack_interval
             if attack_name == "Projectile-1":
                 self.projectiles.append(Projectile(self.animation.get_attack_image(attack_name, self.last_press),
-                                                   self.rect.x, self.rect.y + self.rect.height / 2, 7, 1,
+                                                   self.rect.x, self.rect.y + self.rect.height / 2, 7,
                                                    self.last_press, "Attack-1"))
             elif attack_name == "Projectile-2":
                 self.projectiles.append(Projectile(self.animation.get_attack_image(attack_name, self.last_press),
-                                                   self.rect.x, self.rect.y, 7, 1,
+                                                   self.rect.x, self.rect.y, 7,
                                                    self.last_press, "Attack-2"))
 
     def choose_animation(self):

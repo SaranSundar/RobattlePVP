@@ -168,7 +168,7 @@ class Player(pygame.sprite.Sprite):
             self.attack_interval = attack_interval
             self.attack_time = clock() + self.attack_interval
             self.projectiles.append(Projectile(self.animation.get_attack_image(attack_name, self.last_press),
-                                               self.rect.x, self.rect.y + self.rect.height / 2, 7, 1,
+                                               self.rect.x, self.rect.y + self.rect.height / 2, 7,
                                                self.last_press, animation_name))
             return True
         return False
@@ -313,7 +313,6 @@ class Player(pygame.sprite.Sprite):
                         angle = proj_info['angle']
                         if projectile.velocity < 0:
                             angle = math.pi - angle
-                        proj_info['dmg'] = projectile.dmg
                         self.apply_damage(proj_info, angle)
                         projectile.collided = True
 

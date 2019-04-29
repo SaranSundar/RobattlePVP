@@ -1,8 +1,10 @@
 import pygame
 
+from countdown import CountDown
 from fighters.metabee import Metabee
 from fighters.sumilidon import Sumilidon
 from room import Room
+from spritesheet_functions import get_path_name
 
 BACKGROUND_COLOR = pygame.Color("cyan")
 
@@ -24,7 +26,7 @@ class World:
         self.add_player(self.player2)
         self.rooms = [Room("level1.txt"), Room("level2.txt")]
         self.current_room = 0
-        # self.countdown = CountDown()
+        self.countdown = CountDown()
         # Main Game Loop variables
         self.done = False
         self.fps = 60.0
@@ -33,6 +35,8 @@ class World:
         pygame.font.init()  # you have to call this at the start,
         # if you want to use this module.
         self.game_font = pygame.font.SysFont('times', 20)
+        self.game_over = False
+        self.winner = ""
 
     def add_player(self, player):
         self.players[player.unique_id] = player
@@ -57,15 +61,25 @@ class World:
 
     def update(self):
         # Will only update count down timer until it's done
-        # if not self.countdown.should_countdown():
-        #    self.countdown.update()
-        # else:
-        # --- Game Logic ---
-        self.player.set_room(self.rooms[self.current_room])
-        self.player.update(self.players)
-        # Remove these line for networking
-        self.player2.set_room(self.rooms[self.current_room])
-        self.player2.update(self.players)
+        if not self.countdown.should_countdown():
+            self.countdown.update()
+        else:
+            # --- Game Logic ---
+            self.player.set_room(self.rooms[self.current_room])
+            self.player.update(self.players)
+            # Remove these line for networking
+            self.player2.set_room(self.rooms[self.current_room])
+            self.player2.update(self.players)
+
+            if (self.player.damage_taken >= 100 or self.player2.damage_taken >= 100) and not self.game_over:
+                self.game_over = True
+                if self.player.damage_taken < 100:
+                    self.winner = "P1Wins.png"
+                elif self.player2.damage_taken < 100:
+                    self.winner = "P2Wins.png"
+                pygame.mixer.music.stop()
+                pygame.mixer.music.load(get_path_name("media", "winner.mp3"))
+                pygame.mixer.music.play(0)
 
     def draw_countdown(self):
         if not self.countdown.should_countdown():
@@ -78,8 +92,13 @@ class World:
             self.players[player].draw(self.screen, self.game_font, position)
             pos += 1
 
+    def draw_game_over(self):
+        self.countdown.draw_game_over(self.screen, self.winner)
+
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)
         self.rooms[self.current_room].draw(self.screen)
         self.draw_players()
-        # self.draw_countdown()
+        self.draw_countdown()
+        if self.game_over:
+            self.draw_game_over()

@@ -5,7 +5,7 @@ from animation import get_collision_image
 
 class Projectile(pygame.sprite.Sprite):
 
-    def __init__(self, image, x, y, velocity, dmg, direction, name):
+    def __init__(self, image, x, y, velocity, direction, name):
         super().__init__()
         self.image = image
         self.collision_image = get_collision_image(image)[0]
@@ -14,7 +14,6 @@ class Projectile(pygame.sprite.Sprite):
         self.rect.y = y
         self.animation_name = name
         self.velocity = -velocity if direction == "l" else velocity
-        self.dmg = dmg
         self.collided = False
 
     def draw(self, surface):

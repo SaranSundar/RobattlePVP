@@ -21,6 +21,10 @@ class CountDown(pygame.sprite.Sprite):
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
+    def draw_game_over(self, surface, name):
+        img = pygame.image.load(get_path_name("images", name))
+        surface.blit(img, self.rect)
+
     def should_countdown(self, reset=False):
         if reset:
             self.animation.calculate_animation_speed()
