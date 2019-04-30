@@ -1,5 +1,6 @@
 import math
 import pickle
+import platform
 import time
 
 import pygame
@@ -49,6 +50,7 @@ class Player(pygame.sprite.Sprite):
         # Attack Settings
         self.attack_info = {}
         self.set_attack_info()
+        self.system = platform.system()
 
     def set_init_variables(self):
         self.right = False
@@ -216,7 +218,10 @@ class Player(pygame.sprite.Sprite):
         elif self.left:
             self.last_press = "l"
         locked_image, collision_image, collision_mask = self.animation.get_image(self.last_press)
-        black_image, x_off, y_off, contrast_image = get_collision_image(collision_image)
+        if self.system == "Windows":
+            black_image = collision_image
+        else:
+            black_image, x_off, y_off, contrast_image = get_collision_image(collision_image)
         self.image = black_image
         curr_x = self.rect.x
         curr_y = self.rect.y

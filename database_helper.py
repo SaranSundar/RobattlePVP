@@ -27,7 +27,12 @@ def arena_info():
 
 
 if __name__ == '__main__':
-    arenas = arena_info()
-    print(arenas)
-    for robot in ['metabee', 'sumilidon', 'rokusho']:
-        print(robot_stats(robot))
+    # arenas = arena_info()
+    # print(arenas)
+    # for robot in ['metabee', 'sumilidon', 'rokusho']:
+    #     print(robot_stats(robot))
+    import platform
+    import os
+    print(os.name)
+    print(platform.system())
+    print(platform.release())
