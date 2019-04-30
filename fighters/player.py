@@ -67,11 +67,12 @@ class Player(pygame.sprite.Sprite):
 
     # This method needs to be overridden in every fighters class
     def set_attack_info(self):
+        pass
         # Angles should all be right facing and in radians, can be flipped when applying damage
-        self.create_attack("Attack-1", dmg=5)
-        self.create_attack("Attack-2", angle=math.pi / 4)
-        self.create_attack("Attack-3")
-        self.create_attack("Attack-4")
+        # self.create_attack("Attack-1", dmg=3, angle=math.pi / 8)
+        # self.create_attack("Attack-2", dmg=3, angle=math.pi / 4)
+        # self.create_attack("Attack-3")
+        # self.create_attack("Attack-4")
 
     # Knock back time in ms
     def create_attack(self, attack_name, angle=0.0, dmg=1, bs_kbk=5, kbk_time=500):
@@ -154,7 +155,7 @@ class Player(pygame.sprite.Sprite):
         self.damage_taken += dmg
 
         # Calculate knock-back
-        knock_back = bs_kbk + dmg
+        knock_back = bs_kbk
 
         # Calculate velocity and time (milliseconds)
         self.x_velocity = knock_back * math.cos(angle)
@@ -214,7 +215,7 @@ class Player(pygame.sprite.Sprite):
         curr_y = self.rect.y
         curr_w = self.rect.width
         curr_h = self.rect.height
-        # self.rect.x += x_off
+        # self.rect.x += curr_x + x_off
         # self.rect.y += y_off
         self.rect.width = black_image.get_width()
         self.rect.height = black_image.get_height()

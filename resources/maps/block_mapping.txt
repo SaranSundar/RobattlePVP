@@ -29,3 +29,5 @@ LSTON_BLOCK =	s   /	(11, 3)
 RSTON_BLOCK =	d   /	(11, 1)
 SDIRT_BLOCK =	f   /	(1, 4)
 STONE_HALF  =	h   /   (11, 5)
+LADDER1     =   l   /   (7, 1)  /   False
+LADDER2     =   ;   /   (7, 2)
