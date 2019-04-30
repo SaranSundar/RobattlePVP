@@ -39,5 +39,5 @@ class CountDown(pygame.sprite.Sprite):
                 pygame.mixer.music.play(-1)
         locked_image, collision_image, collision_mask = self.animation.get_image()
         self.image = locked_image
-        self.prev_animation_frame = self.animation.current_frame
+        self.prev_animation_frame = self.animation.current_frame,
         self.animation.update_frame()
