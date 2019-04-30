@@ -6,6 +6,7 @@ import pygame
 
 import constants
 from animation import Animation, get_collision_image, clock
+from database_helper import robot_stats
 from fighters.projectile import Projectile
 
 
@@ -67,7 +68,13 @@ class Player(pygame.sprite.Sprite):
 
     # This method needs to be overridden in every fighters class
     def set_attack_info(self):
-        pass
+        # Angles should all be right facing and in radians, can be flipped when applying damage
+        stats = robot_stats(self.name.lower())
+        self.max_hp = int(stats[1])
+        self.create_attack("Attack-1", kbk_time=int(stats[3]), dmg=int(stats[2]), angle=math.pi / int(stats[4]))
+        self.create_attack("Attack-2", kbk_time=int(stats[6]), dmg=int(stats[5]), angle=math.pi / int(stats[7]))
+        self.create_attack("Attack-3")
+        self.create_attack("Attack-4")
         # Angles should all be right facing and in radians, can be flipped when applying damage
         # self.create_attack("Attack-1", dmg=3, angle=math.pi / 8)
         # self.create_attack("Attack-2", dmg=3, angle=math.pi / 4)

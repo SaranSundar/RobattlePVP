@@ -7,7 +7,7 @@ def robot_stats(robot_name):
 
     db_conn = sqlite3.connect("database.db")
     cmd = '''
-            SELECT  robot_name, health, defense, speed, weight,
+            SELECT  robot_name, health,
                     primary_atk_damage, primary_atk_knockback, primary_atk_angle,
                     secondary_atk_damage, secondary_atk_knockback, secondary_atk_angle
             FROM    contestant
@@ -21,9 +21,13 @@ def arena_info():
     cmd = '''
             SELECT  arena_name, type
             FROM    arena
+            WHERE   arena_name='Skyfall' OR arena_name='Kirby'
             '''
-    return db_conn.cursor().execute(cmd).fetchone()
+    return db_conn.cursor().execute(cmd).fetchall()
 
 
 if __name__ == '__main__':
-    print(robot_stats("metabee"))
+    arenas = arena_info()
+    print(arenas)
+    for robot in ['metabee', 'sumilidon', 'rokusho']:
+        print(robot_stats(robot))

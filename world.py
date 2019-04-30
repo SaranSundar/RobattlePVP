@@ -1,6 +1,7 @@
 import pygame
 
 from countdown import CountDown
+from database_helper import arena_info
 from fighters.metabee import Metabee
 from fighters.sumilidon import Sumilidon
 from room import Room
@@ -24,7 +25,8 @@ class World:
         self.players = {}
         self.add_player(self.player)
         self.add_player(self.player2)
-        self.rooms = [Room("level1.txt"), Room("level2.txt")]
+        arenas = arena_info()
+        self.rooms = [Room(arenas[0][0] + ".txt"), Room(arenas[1][0] + ".txt")]
         self.current_room = 0
         self.countdown = CountDown()
         # Main Game Loop variables
